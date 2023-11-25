@@ -13,26 +13,23 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////GLOBAL VARIABLES/STRUCTS////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////FUNCTIONS///////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////MAIN FUNCTION//////////////////////////////////
 typedef struct {
     int rows;
     int cols;
     int** data;
 } Matrix;
 
-typedef struct {
-    Matrix* matrices;
-    int index1;
-    int index2;
-    Matrix* result;
-} ThreadArgs;
-
-////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////FUNCTIONS///////////////////////////////////////
-
 int readMatrix(Matrix* matrix) {
     char c;
-    // Allocate memory for the matrix data
     matrix->data = (int**)malloc(matrix->rows * sizeof(int*));
     if (matrix->data == NULL) {
         printf("Memory allocation failed for matrix data.\n");
@@ -46,7 +43,6 @@ int readMatrix(Matrix* matrix) {
         }
     }
 
-    // Read matrix elements
     for (int i = 0; i < matrix->rows; i++) {
         for (int j = 0; j < matrix->cols; j++) {
             if (scanf("%d", &matrix->data[i][j]) != 1) {
@@ -61,20 +57,28 @@ int readMatrix(Matrix* matrix) {
     return 0;
 }
 
-    // Free memory for the matrix data
-    void freeMatrix(Matrix* matrix) {
-      if (matrix->data != NULL) {
-          for (int i = 0; i < matrix->rows; i++) {
+void freeMatrix(Matrix* matrix) {
+    if (matrix->data != NULL) {
+        for (int i = 0; i < matrix->rows; i++) {
             free(matrix->data[i]);
-          }
-          free(matrix->data);
-      }
+        }
+        free(matrix->data);
+    }
+}
+
+void matrixAddition(Matrix* matrix1, Matrix* matrix2, Matrix* result) {
+    // Perform matrix addition and store the result in the 'result' Matrix struct
+}
+
+void matrixMultiplication(Matrix* matrix1, Matrix* matrix2, Matrix* result) {
+    // Perform matrix multiplication and store the result in the 'result' Matrix struct
+}
+
+void expressionInterpretation(char expression[50], Matrix* matrices) {
+    // Perform interpretation of the expression using the provided matrices
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////////MAIN FUNCTION//////////////////////////////////
 int main() {
     char expression[50];
     int n, m;
