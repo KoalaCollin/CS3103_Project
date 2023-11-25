@@ -155,7 +155,7 @@ void* matrixSubtraction(void* arg) {
     pthread_exit(NULL);
 }
 
-void* matrixAdditionThread(void* arg) {
+void* matrixMultiplication(void* arg) {
 
     MatrixArgs* args = (MatrixArgs*)arg;
 
@@ -240,7 +240,6 @@ int expressionInterpretation(char expression[50], Matrix* matrices) {
     }
 
 
-
     
     
     //Clear threadcount
@@ -257,7 +256,7 @@ int expressionInterpretation(char expression[50], Matrix* matrices) {
             args[threadcount].matrix1 = &matrices[previous->data -'A'];
             args[threadcount].matrix2 = &matrices[next->data -'A'];
             args[threadcount].result = &matrices[temparr[tempcount]-'A'];
-            pthread_create(&threads[threadcount], NULL, matrixAdditionThread, (void*)&args[threadcount]);
+            pthread_create(&threads[threadcount], NULL, matrixMultiplication, (void*)&args[threadcount]);
             pthread_join(threads[threadcount], NULL);
             threadcount++;
 //            matrixMultiplication(&matrices[previous->data -'A'],&matrices[next->data -'A'],&matrices[temparr[tempcount]-'A']);
