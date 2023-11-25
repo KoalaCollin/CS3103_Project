@@ -242,126 +242,65 @@ int expressionInterpretation(char expression[50], Matrix* matrices) {
 
     //printLinkedList(head);
         //Clear threadcount
-    threadcount = 0;
-    //start from head+1
-    current = head->right;
-    //calculate multiplcation first
-    while (current != NULL) {
-        previous = current->left;
-        next = current->right;
-        if (current->data =='*'){
+    for(int i=0;i<2;i++){
+        threadcount = 0;
+        //start from head+1
+        current = head->right;
+        //calculate multiplcation first
+        while (current != NULL) {
+            previous = current->left;
+            next = current->right;
+            if (current->data =='*'){
 
-            //multplication
-            args[threadcount].matrix1 = &matrices[previous->data -'A'];
-            args[threadcount].matrix2 = &matrices[next->data -'A'];
-            args[threadcount].result = &matrices[temparr[tempcount]-'A'];
-            rc = pthread_create(&threads[threadcount], NULL, matrixMultiplication, (void*)&args[threadcount]);
-            if (rc) {
-            printf("Error creating thread %d\n", threadcount);
-            return -1;
-            }
-            //pthread_join(threads[threadcount], NULL);
-            threadcount++;
-
-            
-            //creat a new node for a new matrix character
-            tempnode = createNode(temparr[tempcount]); 
-            tempnode->right = next->right;
-            if(next->right != NULL){
-            next->right->left = tempnode;
-            }
-            tempnode->left = previous->left;
-            if(previous->left != NULL){
-            previous->left->right = tempnode;
-            }else{
-            head = tempnode;
-            }
-            free(current);
-            free(previous);
-            free(next);
-            current = tempnode;
-            tempcount++;
-            for(int i =0;i<2;i++){
+                //multplication
+                args[threadcount].matrix1 = &matrices[previous->data -'A'];
+                args[threadcount].matrix2 = &matrices[next->data -'A'];
+                args[threadcount].result = &matrices[temparr[tempcount]-'A'];
+                rc = pthread_create(&threads[threadcount], NULL, matrixMultiplication, (void*)&args[threadcount]);
+                if (rc) {
+                printf("Error creating thread %d\n", threadcount);
+                return -1;
+                }
+                //pthread_join(threads[threadcount], NULL);
+                threadcount++;
+  
+                //creat a new node for a new matrix character
+                tempnode = createNode(temparr[tempcount]); 
+                tempnode->right = next->right;
+                if(next->right != NULL){
+                    next->right->left = tempnode;
+                }
+                tempnode->left = previous->left;
+                if(previous->left != NULL){
+                    previous->left->right = tempnode;
+                }else{
+                head = tempnode;
+                }
+                free(current);
+                free(previous);
+                free(next);
+                current = tempnode;
+                tempcount++;
+                for(int i =0;i<2;i++){
                 if (current->right !=NULL)
                     current = current->right;
+                }
+                count -=2;
+                //printLinkedList(head);
             }
-            count -=2;
-            //printLinkedList(head);
+            current = current->right;
         }
-        current = current->right;
-    }
     
     
-    // Wait for the threads to finish
-    for (int t = 0; t < threadcount; t++) {
-        rc = pthread_join(threads[t], NULL);
-        if (rc) {
-            printf("Error joining thread %d\n", t);
-            return -1;
-        }
-    }
-
-    
-    //Clear threadcount
-    threadcount = 0;
-    //start from head+1
-    current = head->right;
-    //calculate multiplcation first
-    while (current != NULL) {
-        previous = current->left;
-        next = current->right;
-        if (current->data =='*'){
-
-            //multplication
-            args[threadcount].matrix1 = &matrices[previous->data -'A'];
-            args[threadcount].matrix2 = &matrices[next->data -'A'];
-            args[threadcount].result = &matrices[temparr[tempcount]-'A'];
-            rc = pthread_create(&threads[threadcount], NULL, matrixMultiplication, (void*)&args[threadcount]);
+        // Wait for the threads to finish
+        for (int t = 0; t < threadcount; t++) {
+            rc = pthread_join(threads[t], NULL);
             if (rc) {
-            printf("Error creating thread %d\n", threadcount);
-            return -1;
+                printf("Error joining thread %d\n", t);
+                return -1;
             }
-            //pthread_join(threads[threadcount], NULL);
-            threadcount++;
-
-            
-            //creat a new node for a new matrix character
-            tempnode = createNode(temparr[tempcount]); 
-            tempnode->right = next->right;
-            if(next->right != NULL){
-            next->right->left = tempnode;
-            }
-            tempnode->left = previous->left;
-            if(previous->left != NULL){
-            previous->left->right = tempnode;
-            }else{
-            head = tempnode;
-            }
-            free(current);
-            free(previous);
-            free(next);
-            current = tempnode;
-            tempcount++;
-            for(int i =0;i<2;i++){
-                if (current->right !=NULL)
-                    current = current->right;
-            }
-            count -=2;
-            //printLinkedList(head);
-        }
-        current = current->right;
-    }
-    
-    
-    // Wait for the threads to finish
-    for (int t = 0; t < threadcount; t++) {
-        rc = pthread_join(threads[t], NULL);
-        if (rc) {
-            printf("Error joining thread %d\n", t);
-            return -1;
         }
     }
-    
     
     
     //Clear threadcount
