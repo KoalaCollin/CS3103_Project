@@ -23,6 +23,7 @@
 
 /////////////////////////////////MAIN FUNCTION//////////////////////////////////
 typedef struct {
+    char name;
     int rows;
     int cols;
     int** data;
@@ -67,17 +68,63 @@ void freeMatrix(Matrix* matrix) {
 }
 
 void matrixAddition(Matrix* matrix1, Matrix* matrix2, Matrix* result) {
+    // Determine the dimensions of the result matrix
+    int resultRows = (matrix1->rows > matrix2->rows) ? matrix1->rows : matrix2->rows;
+    int resultCols = (matrix1->cols > matrix2->cols) ? matrix1->cols : matrix2->cols;
+
+    // Allocate memory for the result matrix
+    result->data = (int**)malloc(resultRows * sizeof(int*));
+    if (result->data == NULL) {
+        fprintf(stderr, "Memory allocation failed for result matrix data.\n");
+        return;
+    }
+    for (int i = 0; i < resultRows; i++) {
+        result->data[i] = (int*)malloc(resultCols * sizeof(int));
+        if (result->data[i] == NULL) {
+            fprintf(stderr, "Memory allocation failed for result matrix data[%d].\n", i);
+            return;
+        }
+    }
+
+    // Perform matrix addition
+    for (int i = 0; i < resultRows; i++) {
+        for (int j = 0; j < resultCols; j++) {
+            int value1 = (i < matrix1->rows && j < matrix1->cols) ? matrix1->data[i][j] : 0;
+            int value2 = (i < matrix2->rows && j < matrix2->cols) ? matrix2->data[i][j] : 0;
+            result->data[i][j] = value1 + value2;
+        }
+    }
+
+    // Update the dimensions of the result matrix
+    result->rows = resultRows;
+    result->cols = resultCols;
+}
+
+void matrixSubtraction(Matrix* matrix1, Matrix* matrix2, Matrix* result) {
     // Perform matrix addition and store the result in the 'result' Matrix struct
+    
 }
 
 void matrixMultiplication(Matrix* matrix1, Matrix* matrix2, Matrix* result) {
     // Perform matrix multiplication and store the result in the 'result' Matrix struct
+    
 }
 
 void expressionInterpretation(char expression[50], Matrix* matrices) {
     // Perform interpretation of the expression using the provided matrices
 }
 
+void printMatrix(Matrix* matrix) {
+    printf("Matrix %c:\n", matrix->name);
+    printf("n: %d\n", matrix->rows);
+          printf("m: %d\n", matrix->cols);
+        for (int j = 0; j < matrix->rows; j++) {
+            for (int k = 0; k < matrix->cols; k++) {
+                printf("%d ", matrix->data[j][k]);
+            }
+            printf("\n");
+}
+}
 
 int main() {
     char expression[50];
@@ -118,6 +165,7 @@ int main() {
             }
             matrices[matrixIndex].rows = n;
             matrices[matrixIndex].cols = m;
+            matrices[matrixIndex].name = matrixIndex + 'A';
             printf("matrix row: %d\n", matrices[matrixIndex].rows);
             printf("matrix column: %d\n", matrices[matrixIndex].cols);
             printf("Enter the elements for matrix %c:\n", expression[i]);
@@ -139,16 +187,7 @@ int main() {
     
 
     for (int i = 0; i < numMatrices; i++) {
-         printf("n: %d\n", matrices[i].rows);
-          printf("m: %d\n", matrices[i].cols);
-        printf("Matrix %c:\n", expression[i]);
-        for (int j = 0; j < matrices[i].rows; j++) {
-            for (int k = 0; k < matrices[i].cols; k++) {
-                printf("%d ", matrices[i].data[j][k]);
-            }
-            printf("\n");
-        }
-        printf("\n");
+        printMatrix(&matrices[i]);
     }
 
     // Free the allocated memory
