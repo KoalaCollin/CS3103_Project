@@ -24,8 +24,8 @@ int main()
     int multicount=0; // (useless) count the number of * 
     int firstL=1;    //boolean for don't do in first loop
     //printf("Hello World");
-    char expression[50]={"A*B+C+D*E-F+G"}; //already have
-    //char expression[50]={"A*B*C*D*e+f"}; //temp
+    //char expression[50]={"A*B+C+D*E-F+G"}; //already have
+    char expression[50]={"A+B+C+D+E+F"}; //temp
     char temparr[50]={"KLMNOPQRST"};    //temparr
     char waitlist[50];
     int waitloc[10];
@@ -63,16 +63,16 @@ int main()
                 waitlist[waitcount++]=expression[0];
                 ptr+=2;
                 printf("  waitlist %s",waitlist);
-            }
-            if (expression[ptr]=='\0'){
-                waitlist[waitcount++]=expression[ptr-2];
-                waitloc[waitcount/2]=ptr-1;
-                waitlist[waitcount++]=expression[ptr-1];
-                ptr+=2;
-                printf("  waitlist %s",waitlist);
-            }
+            
+                if (expression[ptr]=='\0'){
+                    waitlist[waitcount++]=expression[ptr-2];
+                    waitloc[waitcount/2]=ptr-1;
+                    waitlist[waitcount++]=expression[ptr-1];
+                    ptr+=2;
+                    printf("  waitlist %s",waitlist);
+                }}
         }
-        else if ((expression[ptr]=='+')||(expression[ptr]=='-')){
+        if ((expression[ptr]=='+')||(expression[ptr]=='-')){
             if (expression[ptr+2]!='*'){
                 waitlist[waitcount++]=expression[ptr];
                 waitloc[waitcount/2]=(ptr+1);
@@ -85,6 +85,7 @@ int main()
         if (waitcount==4){ //++ or   -- == -(+)
             if(waitlist[1]==waitlist[3]){
                 waitcount==0;
+                printf("\nClear\n");
                 continue;
             }
             if(waitlist[0]==waitlist[2]){
@@ -103,9 +104,9 @@ int main()
                 AtTail=waitloc[0];
             }
             expression[AtHead]=temparr[tempcount++];
-                for(int i=AtTail-1;i<count+1;i++){
+            for(int i=AtTail-1;i<count+1;i++){
                     expression[i]=expression[i+2];
-                }
+            }
             
             waitcount=0;
             printf("after waitlist:\n%s",expression);
@@ -119,6 +120,7 @@ int main()
         if(ptr>=count){ //if(current ==NULL)
             ptr=1;      //current= head->right;
                         //joinPthread here //
+            waitcount=0;
         }
         
         printf("\n\n%s ,%d  !%d",expression,count,ptr);
@@ -127,3 +129,4 @@ int main()
     }
     return 0;
 }
+
