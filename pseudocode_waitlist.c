@@ -25,8 +25,8 @@ int main()
     int firstL=1;    //boolean for don't do in first loop
     int lockk=0;
     //printf("Hello World");
-    //char expression[50]={"A*B+C+D*E-F+G"}; //already have
-    char expression[50]={"A+B+C+D+E+F"}; //temp
+    char expression[50]={"A*B+C+D*E-F+G"}; //already have
+    //char expression[50]={"A*B*C*D+E*F"}; //temp
     char temparr[50]={"KLMNOPQRST"};    //temparr
     char waitlist[50];
     int waitloc[10];
@@ -66,23 +66,14 @@ int main()
                 waitlist[waitcount++]=expression[0];
                 ptr+=2;
                 printf("  waitlist %s",waitlist);
-            }
-                if (expression[ptr]=='\0'){
-                    waitlist[waitcount++]=expression[ptr-2];
-                    waitloc[waitcount/2]=ptr-1;
-                    waitlist[waitcount++]=expression[ptr-1];
-                    ptr+=2;
+            
+                if (expression[ptr]!='*'){
+                    waitlist[waitcount++]=expression[1];
+                    waitloc[waitcount/2]=2;
+                    waitlist[waitcount++]=expression[2];
                 printf("  waitlist %s",waitlist);
                 }
-        }
-        if ((expression[ptr]=='+')||(expression[ptr]=='-')){
-            if (expression[ptr+2]!='*'){
-                waitlist[waitcount++]=expression[ptr];
-                waitloc[waitcount/2]=(ptr+1);
-                waitlist[waitcount++]=expression[ptr+1];
-                //ptr+=2;
-                printf(" ptr:%d waitlist %s loc0:%d  1:%d",ptr,waitlist,waitloc[0],waitloc[1]);
-            }
+            }   
         }
         
         if (waitcount==4){ //++ or   -- == -(+)
@@ -116,6 +107,48 @@ int main()
             count-=2;
             ptr-=2;
         }
+        
+        if ((expression[ptr]=='+')||(expression[ptr]=='-')){
+            if (expression[ptr+2]!='*'){
+                waitlist[waitcount++]=expression[ptr];
+                waitloc[waitcount/2]=(ptr+1);
+                waitlist[waitcount++]=expression[ptr+1];
+                //ptr+=2;
+                printf(" ptr:%d waitlist %s loc0:%d  1:%d",ptr,waitlist,waitloc[0],waitloc[1]);
+            }
+        }
+        if (waitcount==4){ //++ or   -- == -(+)
+            if(waitlist[1]==waitlist[3]){
+                waitcount==0;
+                printf("\nClear\n");
+                continue;
+            }
+            if(waitlist[0]==waitlist[2]){
+                Padd(waitlist[1],waitlist[3],temparr[tempcount]);
+            }
+            else{         //+- or -+ == -(-)
+                Psub(waitlist[1],waitlist[3],temparr[tempcount]);
+            }
+             printf("  waitloc 0:%d, 1:%d",waitloc[0],waitloc[1]);
+            if(waitloc[0]<waitloc[1]){
+                AtHead=waitloc[0];
+                AtTail=waitloc[1];
+            }
+            else{
+                AtHead=waitloc[1];
+                AtTail=waitloc[0];
+            }
+            expression[AtHead]=temparr[tempcount++];
+            for(int i=AtTail-1;i<count+1;i++){
+                    expression[i]=expression[i+2];
+            }
+            
+            waitcount=0;
+            printf("after waitlist:\n%s",expression);
+            count-=2;
+            ptr-=2;
+        }
+        
         ptr+=2;
         if(count==1)
             break;
