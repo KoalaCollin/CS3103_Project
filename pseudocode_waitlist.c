@@ -21,12 +21,12 @@ int main()
 {
     int count=0;
     int ptr;    // this is current in list node(should be)
-    int multicount=0;
-    int firstL=1;
+    int multicount=0; // (useless) count the number of * 
+    int firstL=1;    //boolean for don't do in first loop
     //printf("Hello World");
-    char expression[50]={"A*B+C+D*E-F+G"};
-    //char expression[50]={"A*B*C*D*e+f"};
-    char temp[50]={"KLMNOPQRST"};
+    char expression[50]={"A*B+C+D*E-F+G"}; //already have
+    //char expression[50]={"A*B*C*D*e+f"}; //temp
+    char temparr[50]={"KLMNOPQRST"};    //temparr
     char waitlist[50];
     int waitloc[10];
     int waitcount=0;
@@ -43,8 +43,8 @@ int main()
     ptr=1;
     while(ptr<count){
         if (expression[ptr]=='*'){
-            Pmulti(expression[ptr-1],expression[ptr+1],temp[tempcount]);
-            expression[ptr-1]=temp[tempcount++];
+            Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
+            expression[ptr-1]=temparr[tempcount++];
             for(int i=ptr;i<count+1;i++){
                 expression[i]=expression[i+2];
             }
@@ -87,20 +87,20 @@ int main()
                 continue;
             }
             if(waitlist[0]==waitlist[2]){
-                Padd(waitlist[1],waitlist[3],temp[tempcount]);
+                Padd(waitlist[1],waitlist[3],temparr[tempcount]);
             }
             else{         //+- or -+ == -(-)
-                Psub(waitlist[1],waitlist[3],temp[tempcount]);
+                Psub(waitlist[1],waitlist[3],temparr[tempcount]);
             }
              printf("  waitloc 0:%d, 1:%d",waitloc[0],waitloc[1]);
             if(waitloc[0]<waitloc[1]){
-                expression[waitloc[0]]=temp[tempcount++];
+                expression[waitloc[0]]=temparr[tempcount++];
                 for(int i=waitloc[1]-1;i<count+1;i++){
                     expression[i]=expression[i+2];
                 }
             }
             else{
-                expression[waitloc[1]]=temp[tempcount++];
+                expression[waitloc[1]]=temparr[tempcount++];
                 for(int i=waitloc[0]-1;i<count+1;i++){
                     expression[i]=expression[i+2];
                 }
@@ -124,3 +124,4 @@ int main()
     }
     return 0;
 }
+
