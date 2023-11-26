@@ -29,6 +29,7 @@ int main()
     char temparr[50]={"KLMNOPQRST"};    //temparr
     char waitlist[50];
     int waitloc[10];
+    int AtHead,AtTail;
     int waitcount=0;
     int tempcount=0;
     while(expression[count] !='\0'){
@@ -94,24 +95,26 @@ int main()
             }
              printf("  waitloc 0:%d, 1:%d",waitloc[0],waitloc[1]);
             if(waitloc[0]<waitloc[1]){
-                expression[waitloc[0]]=temparr[tempcount++];
-                for(int i=waitloc[1]-1;i<count+1;i++){
-                    expression[i]=expression[i+2];
-                }
+                AtHead=waitloc[0];
+                AtTail=waitloc[1];
             }
             else{
-                expression[waitloc[1]]=temparr[tempcount++];
-                for(int i=waitloc[0]-1;i<count+1;i++){
+                AtHead=waitloc[1];
+                AtTail=waitloc[0];
+            }
+            expression[AtHead]=temparr[tempcount++];
+                for(int i=AtTail-1;i<count+1;i++){
                     expression[i]=expression[i+2];
                 }
-            }
+            
             waitcount=0;
             printf("after waitlist:\n%s",expression);
             count-=2;
             ptr-=2;
         }
         ptr+=2;
-        
+        if(count==1)
+            break;
         
         if(ptr>=count){ //if(current ==NULL)
             ptr=1;      //current= head->right;
@@ -124,4 +127,3 @@ int main()
     }
     return 0;
 }
-
