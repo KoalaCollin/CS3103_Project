@@ -63,14 +63,14 @@ int main()
                 waitlist[waitcount++]=expression[0];
                 ptr+=2;
                 printf("  waitlist %s",waitlist);
-            
+            }
                 if (expression[ptr]=='\0'){
                     waitlist[waitcount++]=expression[ptr-2];
                     waitloc[waitcount/2]=ptr-1;
                     waitlist[waitcount++]=expression[ptr-1];
                     ptr+=2;
-                    printf("  waitlist %s",waitlist);
-                }}
+                printf("  waitlist %s",waitlist);
+                }
         }
         if ((expression[ptr]=='+')||(expression[ptr]=='-')){
             if (expression[ptr+2]!='*'){
