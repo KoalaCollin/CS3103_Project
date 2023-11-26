@@ -23,6 +23,7 @@ int main()
     int ptr;    // this is current in list node(should be)
     int multicount=0; // (useless) count the number of * 
     int firstL=1;    //boolean for don't do in first loop
+    int lockk=0;
     //printf("Hello World");
     //char expression[50]={"A*B+C+D*E-F+G"}; //already have
     char expression[50]={"A+B+C+D+E+F"}; //temp
@@ -44,6 +45,8 @@ int main()
     ptr=1;
     while(ptr<count){
         if (expression[ptr]=='*'){
+            if(firstL==1)
+                lockk=1;
             Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
             expression[ptr-1]=temparr[tempcount++];
             for(int i=ptr;i<count+1;i++){
@@ -56,7 +59,7 @@ int main()
             printf("\n%s",expression);
         }
         
-        if (ptr==1&&(firstL==0)){  //read head
+        if (ptr==1&&(lockk==0)){  //read head //
             if (expression[ptr]!='*'){
                 waitlist[waitcount++]='+';
                 waitloc[waitcount/2]=0;
@@ -124,9 +127,12 @@ int main()
         }
         
         printf("\n\n%s ,%d  !%d",expression,count,ptr);
-        if(firstL==1)
+        if(firstL==1){
             firstL=0;
+            lockk=0;
+        }
     }
     return 0;
 }
+
 
