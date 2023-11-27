@@ -8,13 +8,13 @@ Code, Compile, Run and Debug online from anywhere in world.
 *******************************************************************************/
 #include <stdio.h>
 void Pmulti(char a, char b, char c){ //a*b=c
-    printf(" %c=(%c*%c) ",c,a,b);
+    printf(" %d=(%d*%d) ",c-'A',a-'A',b-'A');
 }
 void Padd(char a, char b, char c){ //a+b=c
-    printf(" %c=(%c+%c) ",c,a,b);
+    printf(" %d=(%d+%d) ",c-'A',a-'A',b-'A');
 }
 void Psub(char a, char b, char c){ //a-b=c
-    printf(" %c=(%c-%c) ",c,a,b);
+    printf(" %d=(%d-%d) ",c-'A',a-'A',b-'A');
 }
 
 int Operation_logic(char expression[50])
@@ -95,7 +95,7 @@ int Operation_logic(char expression[50])
         
         if (waitcount==4){ //++ or   -- == -(+)
             if(waitlist[1]==waitlist[3]){
-                waitcount==0;
+                waitcount=0;
                 printf("\nClear\n");
                 continue;
             }
@@ -138,7 +138,7 @@ int Operation_logic(char expression[50])
         }
         if (waitcount==4){ //++ or   -- == -(+)
             if(waitlist[1]==waitlist[3]){
-                waitcount==0;
+                waitcount=0;
                 printf("\nClear\n");
                 continue;
             }
@@ -173,13 +173,10 @@ int Operation_logic(char expression[50])
         ptr+=2;
         if(count==1)
             break;
-            
-            
         if(firstL==1){
             firstL=0;
             lockk=0;
         }
-        
         if(ptr>=count){ //if(current ==NULL)
             ptr=1;      //current= head->right;
                         //joinPthread here //
@@ -187,6 +184,7 @@ int Operation_logic(char expression[50])
             //lockk=0;
             waitcount=0;
             //continue;
+            printf("\n\nWaiting all pthread\n\n");
         }
         
         printf("\n\n%s ,%d  !%d",expression,count,ptr);
@@ -207,10 +205,10 @@ int main(){
     //char expression[50]={"A*B*C*D"}; //task5
     //char expression[50]={"A+B*C+D"}; //task6
     //char expression[50]={"A+B+C*D*E"}; //task7
-    char expression[50]={"A+B+C*D*E+F-G-H*I*J"}; //task8
+    //char expression[50]={"A+B+C*D*E+F-G-H*I*J"}; //task8
     //char expression[50]={"A*B*C*D*E*F*G*H*I*J"}; //temp
     //char expression[50]={"A*B+C*D-E*F+G*H-I*J"}; //task9
-    //char expression[50]={"A*B*C*D+E+F+G+H+I+J"}; //task10
+    char expression[50]={"A*B*C*D+E+F+G+H+I+J"}; //task10
     
     char finalll=Operation_logic(expression);
     //printf("\nThe output is %c",Operation_logic(expression));
