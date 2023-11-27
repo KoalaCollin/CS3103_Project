@@ -31,6 +31,7 @@ int Operation_logic(char expression[50])
     char waitlist[50];
     int waitloc[10];
     int AtHead,AtTail;
+    int Lmulti=0;
     int waitcount=0;
     int tempcount=0;
     while(expression[count] !='\0'){
@@ -44,7 +45,9 @@ int Operation_logic(char expression[50])
     
     ptr=1;
     while(ptr<count){
+        Lmulti=0;  //0 dont lock multi
         if (expression[ptr]=='*'){
+            Lmulti=1; //locked
             if(firstL==1)
                 lockk=1;
             Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
@@ -53,9 +56,6 @@ int Operation_logic(char expression[50])
                 expression[i]=expression[i+2];
             }
             count-=2;
-            //if (expression[ptr]=='*')
-            //    ptr+=2;
-            //ptr+=2;
             printf("\n%s",expression);
             if(count==1)
                 break;
@@ -69,13 +69,28 @@ int Operation_logic(char expression[50])
                 ptr+=2;
                 printf("  waitlist %s",waitlist);
             
-                if (expression[ptr+2]!='*'){
+                //if ((expression[ptr]!='*')&&(expression[ptr+2]!='*')){
+                if ((expression[ptr]!='*')){
                     waitlist[waitcount++]=expression[1];
                     waitloc[waitcount/2]=2;
                     waitlist[waitcount++]=expression[2];
                     printf("  waitlist %s",waitlist);
                 }
             }   
+        }
+        
+        if ((expression[ptr]=='*')&&(Lmulti==0)){
+            if(firstL==1)
+                lockk=1;
+            Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
+            expression[ptr-1]=temparr[tempcount++];
+            for(int i=ptr;i<count+1;i++){
+                expression[i]=expression[i+2];
+            }
+            count-=2;
+            printf("\n%s",expression);
+            if(count==1)
+                break;
         }
         
         if (waitcount==4){ //++ or   -- == -(+)
@@ -158,18 +173,24 @@ int Operation_logic(char expression[50])
         ptr+=2;
         if(count==1)
             break;
-        
-        if(ptr>=count){ //if(current ==NULL)
-            ptr=1;      //current= head->right;
-                        //joinPthread here //
-            waitcount=0;
-        }
-        
-        printf("\n\n%s ,%d  !%d",expression,count,ptr);
+            
+            
         if(firstL==1){
             firstL=0;
             lockk=0;
         }
+        
+        if(ptr>=count){ //if(current ==NULL)
+            ptr=1;      //current= head->right;
+                        //joinPthread here //
+            firstL=1;
+            //lockk=0;
+            waitcount=0;
+            //continue;
+        }
+        
+        printf("\n\n%s ,%d  !%d",expression,count,ptr);
+
     }
     return (expression[0]);
 }
@@ -185,8 +206,12 @@ int main(){
     //char expression[50]={"A+B-C+D"}; //task4
     //char expression[50]={"A*B*C*D"}; //task5
     //char expression[50]={"A+B*C+D"}; //task6
+    //char expression[50]={"A+B+C*D*E"}; //task7
+    char expression[50]={"A+B+C*D*E+F-G-H*I*J"}; //task8
     //char expression[50]={"A*B*C*D*E*F*G*H*I*J"}; //temp
-    //char expression[50]={"A*B*C*D+E+F+G+H+I+J"}; //temp
+    //char expression[50]={"A*B+C*D-E*F+G*H-I*J"}; //task9
+    //char expression[50]={"A*B*C*D+E+F+G+H+I+J"}; //task10
+    
     char finalll=Operation_logic(expression);
     //printf("\nThe output is %c",Operation_logic(expression));
     printf("\nThe output is %c",finalll);
