@@ -69,7 +69,7 @@ int Operation_logic(char expression[50])
                 ptr+=2;
                 printf("  waitlist %s",waitlist);
             
-                if (expression[ptr]!='*'){
+                if (expression[ptr+2]!='*'){
                     waitlist[waitcount++]=expression[1];
                     waitloc[waitcount/2]=2;
                     waitlist[waitcount++]=expression[2];
@@ -177,8 +177,8 @@ int Operation_logic(char expression[50])
 
 
 int main(){
-    char expression[50]={"A*B+C+D*E-F+G"}; //already have
-    //char expression[50]={"A*B*C"}; //temp
+    //char expression[50]={"A*B+C+D*E-F+G"}; //already have
+    char expression[50]={"A+B*C+D"}; //temp
     char finalll=Operation_logic(expression);
     printf("\nThe output is %c",Operation_logic(expression));
     printf("\nThe output is %c",finalll);
