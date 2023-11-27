@@ -89,6 +89,7 @@ int Operation_logic(char expression[50])
                 expression[i]=expression[i+2];
             }
             count-=2;
+            printf("\n///// waiting  ////\n");
             printf("\n%s",expression);
             if(count==1)
                 break;
