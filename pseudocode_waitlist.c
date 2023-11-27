@@ -1,5 +1,5 @@
 /******************************************************************************
-
+//vesion1
 Welcome to GDB Online.
 GDB online is an online compiler and debugger tool for C, C++, Python, Java, PHP, Ruby, Perl,
 C#, OCaml, VB, Swift, Pascal, Fortran, Haskell, Objective-C, Assembly, HTML, CSS, JS, SQLite, Prolog.
@@ -179,11 +179,9 @@ int Operation_logic(char expression[50])
         }
         if(ptr>=count){ //if(current ==NULL)
             ptr=1;      //current= head->right;
-                        //joinPthread here //
+                        //joinPthread here 
             firstL=1;
-            //lockk=0;
             waitcount=0;
-            //continue;
             printf("\n\nWaiting all pthread\n\n");
         }
         
