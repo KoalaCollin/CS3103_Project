@@ -17,7 +17,7 @@ void Psub(char a, char b, char c){ //a-b=c
     printf(" %c=(%c-%c) ",c,a,b);
 }
 
-int main()
+int Operation_logic(char expression[50])
 {
     int count=0;
     int ptr;    // this is current in list node(should be)
@@ -25,8 +25,8 @@ int main()
     int firstL=1;    //boolean for don't do in first loop
     int lockk=0;
     //printf("Hello World");
-    char expression[50]={"A*B+C+D*E-F+G"}; //already have
-    //char expression[50]={"A*B*C*D+E*F"}; //temp
+    //char expression[50]={"A*B+C+D*E-F+G"}; //already have
+    //char expression[50]={"A*B*C"}; //temp
     char temparr[50]={"KLMNOPQRST"};    //temparr
     char waitlist[50];
     int waitloc[10];
@@ -53,10 +53,12 @@ int main()
                 expression[i]=expression[i+2];
             }
             count-=2;
-            if (expression[ptr+2]=='*')
-                ptr+=2;
+            //if (expression[ptr]=='*')
+            //    ptr+=2;
             //ptr+=2;
             printf("\n%s",expression);
+            if(count==1)
+                break;
         }
         
         if (ptr==1&&(lockk==0)){  //read head //
@@ -106,6 +108,8 @@ int main()
             printf("after waitlist:\n%s",expression);
             count-=2;
             ptr-=2;
+            if(count==1)
+                break;
         }
         
         if ((expression[ptr]=='+')||(expression[ptr]=='-')){
@@ -147,6 +151,8 @@ int main()
             printf("after waitlist:\n%s",expression);
             count-=2;
             ptr-=2;
+            if(count==1)
+                break;
         }
         
         ptr+=2;
@@ -165,7 +171,18 @@ int main()
             lockk=0;
         }
     }
-    return 0;
+    return (expression[0]);
+}
+
+
+
+int main(){
+    char expression[50]={"A*B+C+D*E-F+G"}; //already have
+    //char expression[50]={"A*B*C"}; //temp
+    char finalll=Operation_logic(expression);
+    printf("\nThe output is %c",Operation_logic(expression));
+    printf("\nThe output is %c",finalll);
+
 }
 
 
