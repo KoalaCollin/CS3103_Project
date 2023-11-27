@@ -46,7 +46,7 @@ typedef struct {
     int j;
 } PthreadArgs;
 
-#define NUM_THREADS 40
+#define NUM_THREADS 50
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////FUNCTIONS///////////////////////////////////////
@@ -351,14 +351,6 @@ int Operation_logic(char expression[50], Matrix* matrices)
             count-=2;
             //printf("\n%s",expression);
             if(count==1){
-              // Wait for the threads to finish
-              for (int t = 0; t < threadcount; t++) {
-                rc = pthread_join(threads[t], NULL);
-                if (rc) {
-                  printf("Error joining thread %d\n", t);
-                  return -1;
-                }
-              }
               break;
             }
         }
@@ -406,15 +398,7 @@ int Operation_logic(char expression[50], Matrix* matrices)
             }
             count-=2;
             //printf("\n%s",expression);
-            if(count==1){
-              // Wait for the threads to finish
-              for (int t = 0; t < threadcount; t++) {
-                rc = pthread_join(threads[t], NULL);
-                if (rc) {
-                  printf("Error joining thread %d\n", t);
-                  return -1;
-                }
-              }            
+            if(count==1){            
                 break;
             }
         }
@@ -481,14 +465,6 @@ int Operation_logic(char expression[50], Matrix* matrices)
             count-=2;
             ptr-=2;
             if(count==1){
-              // Wait for the threads to finish
-              for (int t = 0; t < threadcount; t++) {
-                rc = pthread_join(threads[t], NULL);
-                if (rc) {
-                  printf("Error joining thread %d\n", t);
-                  return -1;
-                }
-              }
                 break;}
         }
         
@@ -562,27 +538,11 @@ int Operation_logic(char expression[50], Matrix* matrices)
             count-=2;
             ptr-=2;
             if(count==1){
-              // Wait for the threads to finish
-              for (int t = 0; t < threadcount; t++) {
-                rc = pthread_join(threads[t], NULL);
-                if (rc) {
-                  printf("Error joining thread %d\n", t);
-                  return -1;
-                }
-              }
                 break;}
         }
         
         ptr+=2;
         if(count==1){
-                      // Wait for the threads to finish
-              for (int t = 0; t < threadcount; t++) {
-                rc = pthread_join(threads[t], NULL);
-                if (rc) {
-                  printf("Error joining thread %d\n", t);
-                  return -1;
-                }
-              }
             break;}
         if(firstL==1){
             firstL=0;
@@ -617,6 +577,16 @@ int Operation_logic(char expression[50], Matrix* matrices)
         //printf("\n\n%s ,%d  !%d",expression,count,ptr);
 
     }
+    
+    // Wait for the threads to finish
+    for (int t = 0; t < threadcount; t++) {
+      rc = pthread_join(threads[t], NULL);
+      if (rc) {
+        printf("Error joining thread %d\n", t);
+        return -1;
+        }
+      }
+    
     return (expression[0] - 'A');
 }
 
