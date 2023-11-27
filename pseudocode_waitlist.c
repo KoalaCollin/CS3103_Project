@@ -56,6 +56,7 @@ int Operation_logic(char expression[50])
                 expression[i]=expression[i+2];
             }
             count-=2;
+            printf("\n///// waiting  ////\n");
             printf("\n%s",expression);
             if(count==1)
                 break;
@@ -122,6 +123,7 @@ int Operation_logic(char expression[50])
             waitcount=0;
             printf("after waitlist:\n%s",expression);
             count-=2;
+            printf("\n///// waiting  ////\n");
             ptr-=2;
             if(count==1)
                 break;
@@ -165,6 +167,7 @@ int Operation_logic(char expression[50])
             waitcount=0;
             printf("after waitlist:\n%s\n",expression);
             count-=2;
+            printf("\n///// waiting  ////\n");
             ptr-=2;
             if(count==1)
                 break;
@@ -188,6 +191,7 @@ int Operation_logic(char expression[50])
         printf("\n\n%s ,%d  !%d",expression,count,ptr);
 
     }
+    printf("\n///// waiting  ////\n");
     return (expression[0]);
 }
 
@@ -213,5 +217,3 @@ int main(){
     printf("\nThe output is %c",finalll);
 
 }
-
-
