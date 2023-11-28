@@ -12,6 +12,7 @@
 #include <ctype.h>
 //For testing
 #include<time.h>
+#include <sys/time.h>
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////GLOBAL VARIABLES/STRUCTS////////////////////////////
@@ -46,7 +47,10 @@ typedef struct {
     int j;
 } PthreadArgs;
 
-#define NUM_THREADS 45
+#define NUM_THREADS 5
+#define Multiple_SUB 4
+#define NonMultiple_SUB 3
+#define TESTMODE 0
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////FUNCTIONS///////////////////////////////////////
@@ -83,6 +87,9 @@ void freeMatrix(Matrix* matrix) {
 
 
 void* pthreadAddition(void* arg) {
+    struct timeval start, end;
+    double cpu_time_used;
+    gettimeofday(&start, NULL);
     PthreadArgs* args = (PthreadArgs*)arg;
     Matrix* matrix1 = args->matrix1;
     Matrix* matrix2 = args->matrix2;
@@ -104,11 +111,19 @@ void* pthreadAddition(void* arg) {
             result->data[m* resultCol + n] = value1 + value2;
         }
     }
+    if(TESTMODE){ 
+    gettimeofday(&end, NULL);
+    cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
+    printf("ExeTime: %d Thread  %c = %c %c %c  %f seconds\n",startRow,result->name,matrix1->name,'+',matrix2->name,cpu_time_used);
+    }    
     
     pthread_exit(NULL);
 }
 
 void* pthreadSubtraction(void* arg) {
+    struct timeval start, end;
+    double cpu_time_used;
+    gettimeofday(&start, NULL);
     PthreadArgs* args = (PthreadArgs*)arg;
     Matrix* matrix1 = args->matrix1;
     Matrix* matrix2 = args->matrix2;
@@ -130,12 +145,19 @@ void* pthreadSubtraction(void* arg) {
             result->data[m* resultCol + n] = value1 - value2;
         }
     }
-    
+    if(TESTMODE){ 
+    gettimeofday(&end, NULL);
+    cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
+    printf("ExeTime: %d Thread  %c = %c %c %c  %f seconds\n",startRow,result->name,matrix1->name,'-',matrix2->name,cpu_time_used);
+    }    
     pthread_exit(NULL);
 }
 
 
 void* pthreadMultiplication(void* arg) {
+    struct timeval start, end;
+    double cpu_time_used;
+    gettimeofday(&start, NULL);
     PthreadArgs* args = (PthreadArgs*)arg;
     Matrix* matrix1 = args->matrix1;
     Matrix* matrix2 = args->matrix2;
@@ -148,15 +170,23 @@ void* pthreadMultiplication(void* arg) {
     int m1Col = matrix1->cols;
     int m2Row = matrix2->rows;
     int m2Col = matrix2->cols;
-    
+    int temparray[(endRow - startRow)*resultCol];
+    char temp[(endRow - startRow)*resultCol];
+//    
     for (int m = startRow; m < endRow; m++) {
-        for (int k = 0; k < matrix1->cols; k++){
+        for (int k = 0; k < m1Col; k++){
             int value1 = (m < m1Row && k < m1Col) ? matrix1->data[m * m1Col + k] : 0;
             for (int n = 0; n < resultCol; n++)  {
                 int value2 = (k < m2Row && n < m2Col) ? matrix2->data[k * m2Col + n] : 0;
                 result->data[m * resultCol + n] += value1 * value2;
             }
         }
+    }
+
+    if(TESTMODE){ 
+    gettimeofday(&end, NULL);
+    cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
+    printf("ExeTime: %d Thread  %c = %c %c %c  %f seconds\n",startRow,result->name,matrix1->name,'*',matrix2->name,cpu_time_used);
     }
     pthread_exit(NULL);
 }
@@ -175,23 +205,23 @@ void* matrixCalculation(void* arg) {
     int subPthreadNum = args->subPthreadNum;
     int resultRows;
     int resultCols;
-    
-//    clock_t start, end;
-//    double cpu_time_used;
-//    //start = clock(); // Start the timer
-//    for(int redo = 0; redo < 3; redo ++){
-//    start = clock(); // Start the timer
+
+    struct timeval start, end;
+    double cpu_time_used;
+    if(TESTMODE){
+    gettimeofday(&start, NULL);
+    }
     
     if(operatorCh == '*'){
       // Define the dimensions of the result matrix
       resultRows = matrix1->rows;
       resultCols = matrix2->cols;
-      subPthreadNum = 5;
+      subPthreadNum = Multiple_SUB;
     }else {// For + and -
       // Determine the dimensions of the result matrix
       resultRows = (matrix1->rows > matrix2->rows) ? matrix1->rows : matrix2->rows;
       resultCols = (matrix1->cols > matrix2->cols) ? matrix1->cols : matrix2->cols;
-      subPthreadNum = 1;
+      subPthreadNum = NonMultiple_SUB;
     }
     
     // Update the dimensions of the result matrix
@@ -264,16 +294,18 @@ void* matrixCalculation(void* arg) {
         pthread_join(threads[i], NULL);
     } 
     
+    if(TESTMODE){
+      gettimeofday(&end, NULL);
 
-//    //redo }
-//    end = clock(); // Stop the timer
-//    cpu_time_used += ((double) (end - start)) / CLOCKS_PER_SEC;
-//    }
-//    //end = clock(); // Stop the timer
-//    //cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-//    cpu_time_used = cpu_time_used / 3;
-//    printf("Execution Time: %d Thread  %c[%d][%d] = %c[%d][%d] %c %c[%d][%d]  %f seconds\n",subPthreadNum,result->name, result->rows,result->cols,matrix1->name, matrix1->rows,matrix1->cols,operatorCh,matrix2->name, matrix2->rows,matrix2->cols,cpu_time_used);
-
+      cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
+      printf("Execution Time: %d Thread  %c[%d][%d] = %c[%d][%d] %c %c[%d][%d]  %f seconds\n",subPthreadNum,result->name, result->rows,result->cols,matrix1->name, matrix1->rows,matrix1->cols,operatorCh,matrix2->name, matrix2->rows,matrix2->cols,cpu_time_used);
+    
+    }
+    
+    //release memory
+    //free(matrix1->data);
+    //free(matrix2->data);
+    
     pthread_exit(NULL);
     
 }
@@ -330,13 +362,6 @@ int Operation_logic(char expression[50], Matrix* matrices)
         count++;
     }
     
-    //printf("%s",expression);
-    //printf("\n%d *%d\n",count,multicount);
-    //Set number of sub-phread that a phread can generate
-    //Fair distribution. Update per loop
-    //int(count / 2 +1): Num of letter; NUM_THREADS / 2: 2 letter with one operater
-//    subPthreadSize = NUM_THREADS / (2 * (int)(count / 2 +1));
-//    subPthreadSize = (subPthreadSize > 1) ? subPthreadSize : 1;
     //Clear threadcount
     threadcount = 0;
     ptr=1;
@@ -353,19 +378,10 @@ int Operation_logic(char expression[50], Matrix* matrices)
                   printf("Error joining thread %d\n", t);
                   return -1;
                 }
-            }             
-            
-            
-//    clock_t start, end;
-//    double cpu_time_used;
-//    start = clock(); // Start the timer
-//    for(int redo = 0; redo < 3; redo ++){
-//    start = clock(); // Start the timer    
-
- 
-    
+            } 
             //Clear threadcount
-            threadcount = 0;                
+            threadcount = 0;             
+   
             args[threadcount].matrix1 = &matrices[expression[ptr-1] -'A'];
             args[threadcount].matrix2 = &matrices[expression[ptr+1] -'A'];
             args[threadcount].result = &matrices[temparr[tempcount]-'A'];
@@ -378,16 +394,8 @@ int Operation_logic(char expression[50], Matrix* matrices)
             return -1;
             }
 //            //thread num +1
-//            threadcount++; 
-            pthread_join(threads[0], NULL);     
-            
-//    end = clock(); // Stop the timer
-//    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-//    cpu_time_used = cpu_time_used / 3;
-//    printf("Execution Time: %d Thread  %c[%d][%d] = %c[%d][%d] %c %c[%d][%d]  %f seconds\n",args[threadcount].subPthreadNum,args[threadcount].result->name, args[threadcount].result->rows,args[threadcount].result->cols,args[threadcount].matrix1->name, args[threadcount].matrix1->rows,args[threadcount].matrix1->cols,args[threadcount].operatorCh,args[threadcount].matrix2->name, args[threadcount].matrix2->rows,args[threadcount].matrix2->cols,cpu_time_used);             
-            
-            
-            
+            threadcount++; 
+//            pthread_join(threads[0], NULL);     
             
             
             //Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
@@ -431,15 +439,10 @@ int Operation_logic(char expression[50], Matrix* matrices)
                   return -1;
                 }
             } 
-                     
-//    clock_t start, end;
-//    double cpu_time_used;
-//    start = clock(); // Start the timer
-//    for(int redo = 0; redo < 3; redo ++){
-//    start = clock(); // Start the timer  
+//              Clear threadcount
+              threadcount = 0;      
                           
-            //Clear threadcount
-            threadcount = 0;                
+               
             args[threadcount].matrix1 = &matrices[expression[ptr-1] -'A'];
             args[threadcount].matrix2 = &matrices[expression[ptr+1] -'A'];
             args[threadcount].result = &matrices[temparr[tempcount]-'A'];
@@ -453,14 +456,8 @@ int Operation_logic(char expression[50], Matrix* matrices)
             }
             
 //            //thread num +1
-//            threadcount++; 
+ //           threadcount++; 
             pthread_join(threads[0], NULL);
-                      
-                     
-//    end = clock(); // Stop the timer
-//    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-//    cpu_time_used = cpu_time_used / 3;
-//    printf("Execution Time: %d Thread  %c[%d][%d] = %c[%d][%d] %c %c[%d][%d]  %f seconds\n",args[threadcount].subPthreadNum,args[threadcount].result->name, args[threadcount].result->rows,args[threadcount].result->cols,args[threadcount].matrix1->name, args[threadcount].matrix1->rows,args[threadcount].matrix1->cols,args[threadcount].operatorCh,args[threadcount].matrix2->name, args[threadcount].matrix2->rows,args[threadcount].matrix2->cols,cpu_time_used);                        
                       
                       
             //Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
@@ -634,11 +631,6 @@ int Operation_logic(char expression[50], Matrix* matrices)
             }                        
             //Clear threadcount
             threadcount = 0;                         
-            //Set number of sub-phread that a phread can generate
-            //Fair distribution. Update per loop
-            //int(count / 2 +1): Num of letter; NUM_THREADS / 2: 2 letter with one operater
-//            subPthreadSize = NUM_THREADS / (2 * (int)(count / 2 +1));
-//            subPthreadSize = (subPthreadSize > 1) ? subPthreadSize : 1;
   
             firstL=1;
             waitcount=0;
@@ -663,13 +655,23 @@ int Operation_logic(char expression[50], Matrix* matrices)
 }
 
 void printMatrix(Matrix* matrix) {
-//    clock_t start, end;
-//    double cpu_time_used;
-//    start = clock(); // Start the timer
-//    for(int redo = 0; redo < 3; redo ++){
-//    start = clock(); // Start the timer                        
-  
-                      
+    if(TESTMODE){
+    struct timeval start, end;
+    double cpu_time_used;
+    gettimeofday(&start, NULL);                 
+    printf("Matrix %c:\n", matrix->name);
+    printf("%d",matrix->rows);
+    printf("  %d\n", matrix->cols);
+    for (int j = 0; j < matrix->rows; j++) {
+      for (int k = 0; k < matrix->cols; k++) {
+        printf("", matrix->data[j * matrix->cols + k]);
+      }
+    }
+    gettimeofday(&end, NULL);
+    cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
+    printf("Execution Time of Printing Maxtrix: %f seconds\n", cpu_time_used); 
+    
+    }else{              
     //printf("Matrix %c:\n", matrix->name);
     printf("%d",matrix->rows);
     printf("  %d\n", matrix->cols);
@@ -679,12 +681,8 @@ void printMatrix(Matrix* matrix) {
       }
       printf("\n");
     }
-//    end = clock(); // Stop the timer
-//    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-//    cpu_time_used = cpu_time_used / 3;
-//    printf("Execution Time of Printing Maxtrix: %f seconds\n", cpu_time_used); 
-}
-                 
+    }
+ }                
 ////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////MAIN FUNCTION//////////////////////////////////
@@ -694,11 +692,10 @@ int main() {
     int n, m;
     int numMatrices = 20;
     Matrix* matrices;
+    struct timeval start, end;
+    double cpu_time_used;
+    gettimeofday(&start, NULL); 
     
-//    clock_t start, end;
-//    double cpu_time_used;
-//    start = clock(); // Start the timer
-//    
     // Read the expression and matrix dimensions
     if (scanf("%[^\n]%*c", expression) != 1) {
         printf("Failed to read the expression.\n");
@@ -736,19 +733,20 @@ int main() {
             matrixIndex++;
         }
     }
-
-//    end = clock(); // Stop the timer
-//    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-//    printf("Execution Time of Reading Maxtrix: %f seconds\n", cpu_time_used);
-
+    
+    if(TESTMODE){
+      gettimeofday(&end, NULL);
+      cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
+      printf("Execution Time of Reading Maxtrix: %f seconds\n", cpu_time_used);
+    }
 //////////////////////////////CALL FUNCTION HERE/////////////////////////////////////////
   //int temp = expressionInterpretation(expression,matrices);
-  int temp = Operation_logic(expression,matrices);
+    int temp = Operation_logic(expression,matrices);
   //printf("Output: %int\n  in char: %c",temp,temp+'A');
-  if (temp == -1) {
+    if (temp == -1) {
     printf("Error");
     return 0;
-  }
+    }
 //////////////////////////////OUTPUT//////////////////////////////////////////
     printMatrix(&matrices[temp]);
 
@@ -761,10 +759,13 @@ int main() {
 //    }
 //    free(matrices);
 
+    if(TESTMODE){
+    gettimeofday(&end, NULL);
+    cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
 //    end = clock(); // Stop the timer
 //    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-//    printf("Execution Time of Clean Maxtrix: %f seconds\n", cpu_time_used);
-
+    printf("Total Execution Time: %f seconds\n", cpu_time_used);
+}
 
     return 0;
 }
