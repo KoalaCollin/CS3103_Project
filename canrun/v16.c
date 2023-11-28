@@ -117,28 +117,103 @@ void* pthreadNonMultiplication(void* arg) {
     int m2Row = matrix2->rows;
     int m2Col = matrix2->cols; 
     int printOut = args->printOut;     
-        
-    // Perform matrix addition
-    if(operatorCh == '+'){
-    for (int m = startRow; m < endRow; m++) {
-        for (int n = 0; n < resultCol; n++) {
+    
+    
+    if(TESTMODE){
+    if(printOut == 1){
+      printf("%d",result->rows);
+      printf("  %d\n", result->cols);
+      // Perform matrix addition
+      if(operatorCh == '+'){
+        for (int m = startRow; m < endRow; m++) {
+          for (int n = 0; n < resultCol; n++) {
+              int value1 = (m < m1Row && n < m1Col) ? matrix1->data[m * m1Col + n] : 0;
+              int value2 = (m < m2Row && n < m2Col) ? matrix2->data[m * m2Col + n] : 0;
+              printf("%d", value1 + value2);
+          }
+          //printf("\n"); 
+        }
+      }else{
+        // Perform matrix subtraction
+        for (int m = startRow; m < endRow; m++) {
+          for (int n = 0; n < resultCol; n++) {
             int value1 = (m < m1Row && n < m1Col) ? matrix1->data[m * m1Col + n] : 0;
             int value2 = (m < m2Row && n < m2Col) ? matrix2->data[m * m2Col + n] : 0;
-            result->data[m* resultCol + n] = value1 + value2;
+            printf("%d", value1 - value2);
+          } 
+        //printf("\n");
         }
-    }
+      }    
     }else{
-    // Perform matrix subtraction
-    for (int m = startRow; m < endRow; m++) {
-        for (int n = 0; n < resultCol; n++) {
+      // Perform matrix addition
+      if(operatorCh == '+'){
+        for (int m = startRow; m < endRow; m++) {
+          for (int n = 0; n < resultCol; n++) {
+              int value1 = (m < m1Row && n < m1Col) ? matrix1->data[m * m1Col + n] : 0;
+              int value2 = (m < m2Row && n < m2Col) ? matrix2->data[m * m2Col + n] : 0;
+              result->data[m* resultCol + n] = value1 + value2;
+          }
+        }
+      }else{
+        // Perform matrix subtraction
+        for (int m = startRow; m < endRow; m++) {
+          for (int n = 0; n < resultCol; n++) {
             int value1 = (m < m1Row && n < m1Col) ? matrix1->data[m * m1Col + n] : 0;
             int value2 = (m < m2Row && n < m2Col) ? matrix2->data[m * m2Col + n] : 0;
             result->data[m* resultCol + n] = value1 - value2;
+          } 
         }
-        
+      }
+    }    
     
+    
+    }else{
+    if(printOut == 1){
+      printf("%d",result->rows);
+      printf("  %d\n", result->cols);
+      // Perform matrix addition
+      if(operatorCh == '+'){
+        for (int m = startRow; m < endRow; m++) {
+          for (int n = 0; n < resultCol; n++) {
+              int value1 = (m < m1Row && n < m1Col) ? matrix1->data[m * m1Col + n] : 0;
+              int value2 = (m < m2Row && n < m2Col) ? matrix2->data[m * m2Col + n] : 0;
+              printf("%d	", value1 + value2);
+          }
+          printf("\n"); 
+        }
+      }else{
+        // Perform matrix subtraction
+        for (int m = startRow; m < endRow; m++) {
+          for (int n = 0; n < resultCol; n++) {
+            int value1 = (m < m1Row && n < m1Col) ? matrix1->data[m * m1Col + n] : 0;
+            int value2 = (m < m2Row && n < m2Col) ? matrix2->data[m * m2Col + n] : 0;
+            printf("%d	", value1 - value2);
+          } 
+        printf("\n");
+        }
+      }    
+    }else{
+      // Perform matrix addition
+      if(operatorCh == '+'){
+        for (int m = startRow; m < endRow; m++) {
+          for (int n = 0; n < resultCol; n++) {
+              int value1 = (m < m1Row && n < m1Col) ? matrix1->data[m * m1Col + n] : 0;
+              int value2 = (m < m2Row && n < m2Col) ? matrix2->data[m * m2Col + n] : 0;
+              result->data[m* resultCol + n] = value1 + value2;
+          }
+        }
+      }else{
+        // Perform matrix subtraction
+        for (int m = startRow; m < endRow; m++) {
+          for (int n = 0; n < resultCol; n++) {
+            int value1 = (m < m1Row && n < m1Col) ? matrix1->data[m * m1Col + n] : 0;
+            int value2 = (m < m2Row && n < m2Col) ? matrix2->data[m * m2Col + n] : 0;
+            result->data[m* resultCol + n] = value1 - value2;
+          } 
+        }
+      }
     }
-    
+    }
     if(TESTMODE){ 
     if(printOut == 1){
          printf("\n %c Print Out Here! \n",result->name);
@@ -518,6 +593,9 @@ int Operation_logic(char expression[50], Matrix* matrices)
             if(count==3){
               lastCalculation = 1;
               args[threadcount].printOut = 1;
+              if (TESTMODE){
+                printf("\nREADY TO PRINT!\n");
+              }
             }            
             args[threadcount].matrix1 = &matrices[waitlist[1] -'A'];
             args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
@@ -541,6 +619,9 @@ int Operation_logic(char expression[50], Matrix* matrices)
             if(count==3){
               lastCalculation = 1;
               args[threadcount].printOut = 1;
+              if (TESTMODE){
+                printf("\nREADY TO PRINT!\n");
+              }              
             }            
             args[threadcount].matrix1 = &matrices[waitlist[1] -'A'];
             args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
@@ -600,6 +681,9 @@ int Operation_logic(char expression[50], Matrix* matrices)
             if(count==3){
               lastCalculation = 1;
               args[threadcount].printOut = 1;
+              if (TESTMODE){
+                printf("\nREADY TO PRINT!\n");
+              }              
             }
             args[threadcount].matrix1 = &matrices[waitlist[1] -'A'];
             args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
@@ -622,6 +706,9 @@ int Operation_logic(char expression[50], Matrix* matrices)
             if(count==3){
               lastCalculation = 1;
               args[threadcount].printOut = 1;
+              if (TESTMODE){
+                printf("\nREADY TO PRINT!\n");
+              }
             }            
             args[threadcount].matrix1 = &matrices[waitlist[1] -'A'];
             args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
@@ -800,7 +887,10 @@ int main() {
     return 0;
     }
 //////////////////////////////OUTPUT//////////////////////////////////////////
+    //Use this function only if the last one is not non multplication
+    if(lastCalculation == 0){
     printMatrix(&matrices[temp]);
+    }
 
 
 //    start = clock(); // Start the timer
