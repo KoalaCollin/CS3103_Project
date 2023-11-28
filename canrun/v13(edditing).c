@@ -164,10 +164,10 @@ void* pthreadMultiplication(void* arg) {
 
 void* matrixCalculation(void* arg) {
     
-    clock_t start, end;
-    double cpu_time_used;
-    start = clock(); // Start the timer
-    
+//    clock_t start, end;
+//    double cpu_time_used;
+//    start = clock(); // Start the timer
+//    
     
     int rc;
     MatrixArgs* args = (MatrixArgs*)arg;
@@ -183,7 +183,7 @@ void* matrixCalculation(void* arg) {
       // Define the dimensions of the result matrix
       resultRows = matrix1->rows;
       resultCols = matrix2->cols;
-      subPthreadNum = 1;
+      subPthreadNum = 5;
     }else {// For + and -
       // Determine the dimensions of the result matrix
       resultRows = (matrix1->rows > matrix2->rows) ? matrix1->rows : matrix2->rows;
@@ -262,9 +262,9 @@ void* matrixCalculation(void* arg) {
     } 
     
     
-    end = clock(); // Stop the timer
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    printf("Execution Time: Thread  %c = %c %c %c  %f seconds\n",result->name, matrix1->name,operatorCh,matrix2->name,cpu_time_used);
+//    end = clock(); // Stop the timer
+//    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+//    printf("Execution Time: %d Thread  %c[%d][%d] = %c[%d][%d] %c %c[%d][%d]  %f seconds\n",subPthreadNum,result->name, result->rows,result->cols,matrix1->name, matrix1->rows,matrix1->cols,operatorCh,matrix2->name, matrix2->rows,matrix2->cols,cpu_time_used);
 
     pthread_exit(NULL);
     
@@ -338,7 +338,16 @@ int Operation_logic(char expression[50], Matrix* matrices)
             Lmulti=1; //locked
             if(firstL==1)
                 lockk=1;
-                
+            // Wait for the threads to finish
+            for (int t = 0; t < threadcount; t++) {
+              rc = pthread_join(threads[t], NULL);
+                if (rc) {
+                  printf("Error joining thread %d\n", t);
+                  return -1;
+                }
+            }                        
+            //Clear threadcount
+            threadcount = 0;                
             args[threadcount].matrix1 = &matrices[expression[ptr-1] -'A'];
             args[threadcount].matrix2 = &matrices[expression[ptr+1] -'A'];
             args[threadcount].result = &matrices[temparr[tempcount]-'A'];
@@ -350,9 +359,9 @@ int Operation_logic(char expression[50], Matrix* matrices)
             printf("Error creating thread %d\n", threadcount);
             return -1;
             }
-            //thread num +1
-            threadcount++;                
-      
+//            //thread num +1
+//            threadcount++; 
+            pthread_join(threads[0], NULL);     
             //Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
             expression[ptr-1]=temparr[tempcount++];
             for(int i=ptr;i<count+1;i++){
@@ -386,7 +395,16 @@ int Operation_logic(char expression[50], Matrix* matrices)
         if ((expression[ptr]=='*')&&(Lmulti==0)){
             if(firstL==1)
                 lockk=1;
-                
+            // Wait for the threads to finish
+            for (int t = 0; t < threadcount; t++) {
+              rc = pthread_join(threads[t], NULL);
+                if (rc) {
+                  printf("Error joining thread %d\n", t);
+                  return -1;
+                }
+            }                        
+            //Clear threadcount
+            threadcount = 0;                
             args[threadcount].matrix1 = &matrices[expression[ptr-1] -'A'];
             args[threadcount].matrix2 = &matrices[expression[ptr+1] -'A'];
             args[threadcount].result = &matrices[temparr[tempcount]-'A'];
@@ -398,9 +416,11 @@ int Operation_logic(char expression[50], Matrix* matrices)
             printf("Error creating thread %d\n", threadcount);
             return -1;
             }
-            //thread num +1
-            threadcount++; 
-                           
+            
+//            //thread num +1
+//            threadcount++; 
+            pthread_join(threads[0], NULL);
+                      
             //Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
             expression[ptr-1]=temparr[tempcount++];
             for(int i=ptr;i<count+1;i++){
@@ -570,15 +590,14 @@ int Operation_logic(char expression[50], Matrix* matrices)
                   return -1;
                 }
             }                        
-                        
+            //Clear threadcount
+            threadcount = 0;                         
             //Set number of sub-phread that a phread can generate
             //Fair distribution. Update per loop
             //int(count / 2 +1): Num of letter; NUM_THREADS / 2: 2 letter with one operater
             subPthreadSize = NUM_THREADS / (2 * (int)(count / 2 +1));
             subPthreadSize = (subPthreadSize > 1) ? subPthreadSize : 1;
-            //Clear threadcount
-            threadcount = 0;                
-                        
+  
             firstL=1;
             waitcount=0;
             //printf("\n\nWaiting all pthread\n\n");
@@ -596,7 +615,8 @@ int Operation_logic(char expression[50], Matrix* matrices)
         return -1;
         }
       }
-    
+    //Clear threadcount
+    threadcount = 0;  
     return (expression[0] - 'A');
 }
 
@@ -621,9 +641,9 @@ int main() {
     int numMatrices = 20;
     Matrix* matrices;
     
-    clock_t start, end;
-    double cpu_time_used;
-    start = clock(); // Start the timer
+//    clock_t start, end;
+//    double cpu_time_used;
+//    start = clock(); // Start the timer
     
     // Read the expression and matrix dimensions
     if (scanf("%[^\n]%*c", expression) != 1) {
@@ -667,9 +687,9 @@ int main() {
         }
     }
 
-    end = clock(); // Stop the timer
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    printf("Execution Time of Reading Maxtrix: %f seconds\n", cpu_time_used);
+//    end = clock(); // Stop the timer
+//    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+//    printf("Execution Time of Reading Maxtrix: %f seconds\n", cpu_time_used);
 
 //////////////////////////////CALL FUNCTION HERE/////////////////////////////////////////
   //int temp = expressionInterpretation(expression,matrices);
@@ -680,16 +700,16 @@ int main() {
     return 0;
   }
 //////////////////////////////OUTPUT//////////////////////////////////////////
-    //printMatrix(&matrices[temp]);
+    printMatrix(&matrices[temp]);
 
 
 //    start = clock(); // Start the timer
 
     //Free the allocated memory
-//    for (int i = 0; i < numMatrices; i++) {
-//        freeMatrix(&matrices[i]);
-//    }
-//    free(matrices);
+    for (int i = 0; i < numMatrices; i++) {
+        freeMatrix(&matrices[i]);
+    }
+    free(matrices);
 
 //    end = clock(); // Stop the timer
 //    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
