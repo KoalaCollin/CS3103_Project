@@ -1,0 +1,44 @@
+mkwong336@ubt20a:~/project$ make test
+TEST 0 - clean build (program should compile without errors or warnings)
+Test finished in 0.468 seconds
+RESULT passed
+
+TEST 1 - small matrix addition (smaller than 100 * 100, 1 sec timeout)
+Test finished in 0.015 seconds
+RESULT passed
+
+TEST 2 - small matrix multiplication (smaller than 100 * 100, 1 sec timeout)
+Test finished in 0.011 seconds
+RESULT passed
+
+TEST 3 - small matrix subtraction (smaller than 100 * 100, 1 sec timeout)
+Test finished in 0.012 seconds
+RESULT passed
+
+TEST 4 - matrix additions/subtractions (smaller than 500 * 500, 1 sec timeout)
+Test finished in 0.076 seconds
+RESULT passed
+
+TEST 5 - consecutive matrix multiplications (smaller than 500 * 500, 1 sec timeout)
+Test finished in 0.165 seconds
+RESULT passed
+
+TEST 6 - combination of matrix additions and matrix multiplications (smaller than 500 * 500, 1 sec timeout)
+Test finished in 0.116 seconds
+RESULT passed
+
+TEST 7 - combination of matrix additions and matrix multiplications 2 (smaller than 500 * 500, 1 sec timeout)
+Test finished in 0.107 seconds
+RESULT passed
+
+TEST 8 - complex matrix operations (smaller than 1000 * 1000, 10 sec timeout)
+Test finished in 1.666 seconds
+RESULT passed
+
+TEST 9 - complex matrix operations 2 (smaller than 1000 * 1000, 10 sec timeout)
+Test finished in 2.245 seconds
+RESULT passed
+
+TEST 10 - complex matrix operations 3 (smaller than 1000 * 1000, 10 sec timeout)
+Test finished in 1.609 seconds
+RESULT passed
