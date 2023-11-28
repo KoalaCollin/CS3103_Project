@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+// 结构体用于传递参数给线程
+typedef struct {
+    int start_i;  // 起始行索引
+    int end_i;    // 结束行索引
+    int m1Row;    // 矩阵1的行数
+    int m1Col;    // 矩阵1的列数
+    int m2Col;    // 矩阵2的列数
+    int block_size;  // 块大小
+    int *matrix1; // 矩阵1的数据
+    int *matrix2; // 矩阵2的数据
+    int *result;  // 结果矩阵的数据
+} ThreadData;
+
+// 线程函数
+void *threadMultiply(void *arg) {
+    ThreadData *data = (ThreadData *)arg;
+
+    // 解析参数
+    int start_i = data->start_i;
+    int end_i = data->end_i;
+    int m1Row = data->m1Row;
+    int m1Col = data->m1Col;
+    int m2Col = data->m2Col;
+    int block_size = data->block_size;
+    int *matrix1 = data->matrix1;
+    int *matrix2 = data->matrix2;
+    int *result = data->result;
+
+    // 分块乘法
+    for (int i = start_i; i < end_i; i++) {
+        for (int j = 0; j < m2Col; j++) {
+            for (int k = 0; k < m1Col; k++) {
+                for (int ii = i * block_size; ii < (i + 1) * block_size && ii < m1Row; ii++) {
+                    for (int jj = j * block_size; jj < (j + 1) * block_size && jj < m2Col; jj++) {
+                        for (int kk = k * block_size; kk < (k + 1) * block_size && kk < m1Col; kk++) {
+                            result[ii * m2Col + jj] += matrix1[ii * m1Col + kk] * matrix2[kk * m2Col + jj];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pthread_exit(NULL);
+}
+
+void blockedMultiplyParallel(int *matrix1, int *matrix2, int *result, int m1Row, int m1Col, int m2Col, int block_size, int num_threads) {
+    int rows_C = (m1Row + block_size - 1) / block_size;
+    int cols_C = (m2Col + block_size - 1) / block_size;
+
+    pthread_t threads[num_threads];
+    ThreadData thread_data[num_threads];
+
+    int rows_per_thread = rows_C / num_threads;
+    int remaining_rows = rows_C % num_threads;
+    int start_i = 0;
+    int end_i = 0;
+
+    // 创建线程并分配任务
+    for (int i = 0; i < num_threads; i++) {
+        start_i = end_i;
+        end_i = start_i + rows_per_thread;
+
+        if (remaining_rows > 0) {
+            end_i++;
+            remaining_rows--;
+        }
+
+        thread_data[i].start_i = start_i;
+        thread_data[i].end_i = end_i;
+        thread_data[i].m1Row = m1Row;
+        thread_data[i].m1Col = m1Col;
+        thread_data[i].m2Col = m2Col;
+        thread_data[i].block_size = block_size;
+        thread_data[i].matrix1 = matrix1;
+        thread_data[i].matrix2 = matrix2;
+        thread_data[i].result = result;
+
+        pthread_create(&threads[i], NULL, threadMultiply, (void *)&thread_data[i]);
+    }
+
+    // 等待线程完成
+    for (int i = 0; i < num_threads; i++) {
+        pthread_join(threads[i], NULL);
+    }
+}
