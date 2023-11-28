@@ -90,7 +90,7 @@ void* pthreadAddition(void* arg) {
     int startRow = args->i;
     int endRow = args->j;
     int resultCol = result->cols;
-    int resultRow = result->rows;
+    //int resultRow = result->rows;
     int m1Row = matrix1->rows;
     int m1Col = matrix1->cols;
     int m2Row = matrix2->rows;
@@ -116,7 +116,7 @@ void* pthreadSubtraction(void* arg) {
     int startRow = args->i;
     int endRow = args->j;
     int resultCol = result->cols;
-    int resultRow = result->rows;
+    //int resultRow = result->rows;
     int m1Row = matrix1->rows;
     int m1Col = matrix1->cols;
     int m2Row = matrix2->rows;
@@ -143,7 +143,7 @@ void* pthreadMultiplication(void* arg) {
     int startRow = args->i;
     int endRow = args->j;
     int resultCol = result->cols;
-    int resultRow = result->rows;
+    //int resultRow = result->rows;
     int m1Row = matrix1->rows;
     int m1Col = matrix1->cols;
     int m2Row = matrix2->rows;
@@ -304,7 +304,7 @@ int Operation_logic(char expression[50], Matrix* matrices)
 {
     //For pthread
     int threadcount;
-    int subPthreadSize;
+    //int subPthreadSize;
     int rc;
     pthread_t threads[20];
     MatrixArgs args[20];
@@ -370,7 +370,7 @@ int Operation_logic(char expression[50], Matrix* matrices)
             args[threadcount].matrix2 = &matrices[expression[ptr+1] -'A'];
             args[threadcount].result = &matrices[temparr[tempcount]-'A'];
             args[threadcount].resultID = temparr[tempcount];
-            args[threadcount].subPthreadNum = subPthreadSize;
+            args[threadcount].subPthreadNum = 1;
             args[threadcount].operatorCh = '*';
             rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
             if (rc) {
@@ -444,7 +444,7 @@ int Operation_logic(char expression[50], Matrix* matrices)
             args[threadcount].matrix2 = &matrices[expression[ptr+1] -'A'];
             args[threadcount].result = &matrices[temparr[tempcount]-'A'];
             args[threadcount].resultID = temparr[tempcount];
-            args[threadcount].subPthreadNum = subPthreadSize;
+            args[threadcount].subPthreadNum = 1;
             args[threadcount].operatorCh = '*';
             rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
             if (rc) {
@@ -487,7 +487,7 @@ int Operation_logic(char expression[50], Matrix* matrices)
             args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
             args[threadcount].result = &matrices[temparr[tempcount]-'A'];
             args[threadcount].resultID = temparr[tempcount];
-            args[threadcount].subPthreadNum = subPthreadSize;
+            args[threadcount].subPthreadNum =1;
             args[threadcount].operatorCh = '+';
             rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
             if (rc) {
@@ -506,7 +506,7 @@ int Operation_logic(char expression[50], Matrix* matrices)
             args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
             args[threadcount].result = &matrices[temparr[tempcount]-'A'];
             args[threadcount].resultID = temparr[tempcount];
-            args[threadcount].subPthreadNum = subPthreadSize;
+            args[threadcount].subPthreadNum =1;
             args[threadcount].operatorCh = '-';
             rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
             if (rc) {
@@ -561,7 +561,7 @@ int Operation_logic(char expression[50], Matrix* matrices)
             args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
             args[threadcount].result = &matrices[temparr[tempcount]-'A'];
             args[threadcount].resultID = temparr[tempcount];
-            args[threadcount].subPthreadNum = subPthreadSize;
+            args[threadcount].subPthreadNum = 1;
             args[threadcount].operatorCh = '+';
             rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
             if (rc) {
@@ -579,7 +579,7 @@ int Operation_logic(char expression[50], Matrix* matrices)
             args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
             args[threadcount].result = &matrices[temparr[tempcount]-'A'];
             args[threadcount].resultID = temparr[tempcount];
-            args[threadcount].subPthreadNum = subPthreadSize;
+            args[threadcount].subPthreadNum = 1;
             args[threadcount].operatorCh = '-';
             rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
             if (rc) {
@@ -663,9 +663,9 @@ int Operation_logic(char expression[50], Matrix* matrices)
 }
 
 void printMatrix(Matrix* matrix) {
-    clock_t start, end;
-    double cpu_time_used;
-    start = clock(); // Start the timer
+//    clock_t start, end;
+//    double cpu_time_used;
+//    start = clock(); // Start the timer
 //    for(int redo = 0; redo < 3; redo ++){
 //    start = clock(); // Start the timer                        
   
@@ -679,10 +679,10 @@ void printMatrix(Matrix* matrix) {
       }
       printf("\n");
     }
-    end = clock(); // Stop the timer
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+//    end = clock(); // Stop the timer
+//    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 //    cpu_time_used = cpu_time_used / 3;
-    printf("Execution Time of Printing Maxtrix: %f seconds\n", cpu_time_used); 
+//    printf("Execution Time of Printing Maxtrix: %f seconds\n", cpu_time_used); 
 }
                  
 ////////////////////////////////////////////////////////////////////////////////
@@ -756,10 +756,10 @@ int main() {
 //    start = clock(); // Start the timer
 
     //Free the allocated memory
-    for (int i = 0; i < numMatrices; i++) {
-        freeMatrix(&matrices[i]);
-    }
-    free(matrices);
+//    for (int i = 0; i < numMatrices; i++) {
+//        freeMatrix(&matrices[i]);
+//    }
+//    free(matrices);
 
 //    end = clock(); // Stop the timer
 //    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
