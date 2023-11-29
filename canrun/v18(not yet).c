@@ -60,7 +60,7 @@ pthread_mutex_t runninglock;
 //pthread_mutex_t waitinglock;
 
 
-#define NUM_THREADS 5
+#define MAX_THREADS 5
 #define Multiple_SUB 5
 #define NonMultiple_SUB 3
 #define TESTMODE 0
@@ -68,6 +68,27 @@ pthread_mutex_t runninglock;
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////FUNCTIONS///////////////////////////////////////
+void creatMatrix(Matrix* matrices, int matrixIndex) {
+  int n,m;
+  if (scanf("%d %d", &n, &m) != 2) {
+      printf("Failed to read n and m.\n");
+      return -1;
+    }
+    while (getchar() != '\n') {
+    }
+    matrices[matrixIndex].rows = n;
+    matrices[matrixIndex].cols = m;
+    matrices[matrixIndex].name = matrixIndex + 'A';
+    if (readMatrix(&matrices[matrixIndex]) == -1) {
+      // Clean up previously allocated matrices
+      for (int j = 0; j < matrixIndex; j++) {
+        freeMatrix(&matrices[j]);
+      }
+      free(matrices);
+      return -1;
+    }
+}
+
 int readMatrix(Matrix* matrix) {
     char c;
     matrix->data = (int*)malloc(matrix->rows * matrix->cols * sizeof(int));
@@ -87,6 +108,26 @@ int readMatrix(Matrix* matrix) {
             // Skip the remaining characters on the current line
         }
     }
+
+    // char line[sizeof(int) * 1000];
+
+    // for (int i = 0; i < matrix->rows; i++) {
+    //     if (fgets(line, sizeof(line), stdin) == NULL) {
+    //         printf("Failed to read line %d from the file.\n", i + 1);
+    //         return -1;
+    //     }
+
+    //     char *token = strtok(line, "  ");
+    //     for (int j = 0; j < matrix->cols; j++) {
+    //         if (token == NULL) {
+    //             printf("Failed to read element at row %d, column %d.\n", i + 1, j + 1);
+    //             return -1;
+    //         }
+    //         matrix->data[i * matrix->cols + j] = atoi(token);
+    //         token = strtok(NULL, " ");
+    //     }
+    // }
+
     return 0;
 }
 
@@ -882,24 +923,7 @@ int main() {
     int matrixIndex = 0;
     for (int i = 0; expression[i] != '\0'; i++) {
         if (isalpha(expression[i])) {
-            if (scanf("%d %d", &n, &m) != 2) {
-                printf("Failed to read n and m.\n");
-                return 1;
-            }
-            while (getchar() != '\n') {
-            }
-            matrices[matrixIndex].rows = n;
-            matrices[matrixIndex].cols = m;
-            matrices[matrixIndex].name = matrixIndex + 'A';
-            if (readMatrix(&matrices[matrixIndex]) == -1) {
-                // Clean up previously allocated matrices
-                for (int j = 0; j < matrixIndex; j++) {
-                    freeMatrix(&matrices[j]);
-                }
-                free(matrices);
-                return 1;
-            }
-
+            creatMatrix(matrices, matrixIndex);
             matrixIndex++;
         }
     }
@@ -921,7 +945,7 @@ int main() {
     if(lastCalculation == 0){
     printMatrix(&matrices[temp]);
     }
-    pthread_mutex_destroy(&runningThreads);
+    pthread_mutex_destroy(&runninglock);
     //Free the allocated memory
       //    for (int i = 0; i < numMatrices; i++) {
       //        freeMatrix(&matrices[i]);
