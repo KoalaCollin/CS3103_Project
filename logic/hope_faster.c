@@ -6,6 +6,7 @@
     }
    // Read and assign values to the matrices
     int matrixIndex = 0;
+int needle=0;
     int do
     for (int i = 0; expression[i] != '\0'; i++) {
         if (isalpha(expression[i])) {
@@ -20,7 +21,7 @@
             for(int i=1;i<count+1;i++){
                 expression[i]=expression[i+2];
             }
-            int needle=1;
+            needle=1;
           }
         }
     }
