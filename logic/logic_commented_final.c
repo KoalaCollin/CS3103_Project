@@ -1,3 +1,11 @@
+/******************************************************************************
+
+Welcome to GDB Online.
+GDB online is an online compiler and debugger tool for C, C++, Python, Java, PHP, Ruby, Perl,
+C#, OCaml, VB, Swift, Pascal, Fortran, Haskell, Objective-C, Assembly, HTML, CSS, JS, SQLite, Prolog.
+Code, Compile, Run and Debug online from anywhere in world.
+
+*******************************************************************************/
 #include <stdio.h>
 void Pmulti(char a, char b, char c){ //a*b=c
     //printf(" %d=(%d*%d) ",c-'A',a-'A',b-'A');
@@ -51,24 +59,24 @@ char Operation_logic(char expression[50],int needle){
                 if(ptr>count)
                     ptr=1;
             }
-            else{
-                if(expression[ptr+2]!='*'){
-                    lockfirst=0;
-                    Pprogram_Konw(expression[ptr-1],expression[ptr+1],temparr[tempcount],expression[ptr]);
-                    expression[ptr-1]=temparr[tempcount++];
-                    for(int i=ptr;i<count+1;i++){
-                        expression[i]=expression[i+2];
-                    }
-                    count-=2;
+            
+            if((expression[ptr+2]!='*')&&(lockfirst==0)){
+                lockfirst=0;
+                Pprogram_Konw(expression[ptr-1],expression[ptr+1],temparr[tempcount],expression[ptr]);
+                expression[ptr-1]=temparr[tempcount++];
+                for(int i=ptr;i<count+1;i++){
+                    expression[i]=expression[i+2];
                 }
-                else{  //put first element into waitlist
-                    waitlist[waitcount++]='+';
-                    waitloc[waitcount/2]=0;
-                    waitlist[waitcount++]=expression[0];
-                    printf("head is add into waitlist %s",waitlist);
-                    ptr+=2;
-                }
+                count-=2;
             }
+            else if(lockfirst==0) {  //put first element into waitlist
+                waitlist[waitcount++]='+';
+                waitloc[waitcount/2]=0;
+                waitlist[waitcount++]=expression[0];
+                printf("head is add into waitlist %s",waitlist);
+                ptr+=2;
+            }
+            
         }
         //Not point to the first operator
         //base on operator to do calculation
@@ -81,7 +89,7 @@ char Operation_logic(char expression[50],int needle){
             count-=2;
         }
         //add next element into waitlist
-        if((lockfirst==0)&&(expression[ptr]!='\0')&&(expression[ptr]!='*')){
+        if((expression[ptr]!='\0')&&(expression[ptr]!='*')){
             if((expression[ptr+2]!='*')){
                 waitlist[waitcount++]=expression[ptr];
                 waitloc[waitcount/2]=ptr+1;
@@ -136,12 +144,12 @@ int main()
     //char expression[50]={"A-B"}; //task3
     //char expression[50]={"A+B-C+D"}; //task4
     //char expression[50]={"A*B*C*D"}; //task5
-    char expression[50]={"A+B*C+D"}; //task6
+    //char expression[50]={"A+B*C+D"}; //task6
     //char expression[50]={"A+B+C*D*E"}; //task7
     //char expression[50]={"A+B+C*D*E+F-G-H*I*J"}; //task8
     //char expression[50]={"A*B*C*D*E*F*G*H*I*J"}; //temp
     //char expression[50]={"A*B+C*D-E*F+G*H-I*J"}; //task9
-    //char expression[50]={"A*B*C*D+E+F+G+H+I+J"}; //task10
+    char expression[50]={"A*B*C*D+E+F+G+H+I+J"}; //task10
     int needle=0;
     char finalll=Operation_logic(expression,needle);
     //printf("\nThe output is %c",Operation_logic(expression));
