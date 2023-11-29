@@ -51,12 +51,12 @@ typedef struct {
 } PthreadArgs;
 //
 // Global variable
-//int runningThreads = 0; 
+int runningThreads = 0; 
 //int waitingThreads = 0;
 int lastCalculation = 0;
 
 //// Mutex lock
-//pthread_mutex_t runninglock; 
+pthread_mutex_t runninglock; 
 //pthread_mutex_t waitinglock;
 
 
@@ -471,27 +471,6 @@ void* matrixCalculation(void* arg) {
 }
 
 
-
-// Function to create a new Node with the given data
-Node* createNode(char data) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    newNode->data = data;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
-}
-// Print linkedlist
-void printLinkedList(Node* head) {
-    Node* current = head;
-
-    printf("Linked List: ");
-    while (current != NULL) {
-        printf("%c ", current->data);
-        current = current->right;
-    }
-    printf("\n");
-}
-
 int Operation_logic(char expression[50], Matrix* matrices){
     //For pthread
     int threadcount;
@@ -885,6 +864,8 @@ int main() {
     double cpu_time_used;
     gettimeofday(&start, NULL); 
     
+    pthread_mutex_init(&runninglock, NULL);
+
     // Read the expression and matrix dimensions
     if (scanf("%[^\n]%*c", expression) != 1) {
         printf("Failed to read the expression.\n");
@@ -940,15 +921,12 @@ int main() {
     if(lastCalculation == 0){
     printMatrix(&matrices[temp]);
     }
-
-
-  //    start = clock(); // Start the timer
-
+    pthread_mutex_destroy(&runningThreads);
     //Free the allocated memory
-  //    for (int i = 0; i < numMatrices; i++) {
-  //        freeMatrix(&matrices[i]);
-  //    }
-  //    free(matrices);
+      //    for (int i = 0; i < numMatrices; i++) {
+      //        freeMatrix(&matrices[i]);
+      //    }
+      //    free(matrices);
 
     if(TESTMODE){
     gettimeofday(&end, NULL);
