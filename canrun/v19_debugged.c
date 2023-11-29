@@ -63,7 +63,7 @@ pthread_mutex_t runninglock;
 #define MAX_THREADS 5
 #define Multiple_SUB 5
 #define NonMultiple_SUB 3
-#define TESTMODE 0
+#define TESTMODE 1
 #define block_size 20
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -481,15 +481,7 @@ void* matrixCalculation(void* arg) {
   //    subArgs[subPthreadCount].result = result;     
   //    }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+  
     
     
     
@@ -512,7 +504,7 @@ void* matrixCalculation(void* arg) {
 }
 
 
-int Operation_logic(char expression[50], Matrix* matrices){
+int Operation_logic(char expression[50], Matrix* matrices,int needle){
     //For pthread
     int threadcount;
     //int subPthreadSize;
@@ -521,333 +513,172 @@ int Operation_logic(char expression[50], Matrix* matrices){
     MatrixArgs args[20];
     
     int count=0;
-    int ptr;    // this is current in list node(should be)
-    int multicount=0; // (useless) count the number of * 
-    int firstL=1;    //boolean for don't do in first loop
-    int lockk=0;
-    //printf("Hello World");
-    //char expression[50]={"A*B+C+D*E-F+G"}; //already have
-    //char expression[50]={"A*B*C"}; //temp
-    char temparr[50]={"KLMNOPQRST"};    //temparr
+    int ptr=1;       //pointer point to the operator in expression
+    int lockfirst=0; //boolean for don't use first element twice
+    char temparr[50]={"KLMNOPQRST"};    //array that store temporary matrix
     char waitlist[50];
-    int waitloc[10];
-    int AtHead,AtTail;
-    int Lmulti=0;
-    int waitcount=0;
-    int tempcount=0;
+    int waitloc[10];  //store the location of the elements in waitlist
+    char operatorr;
+    int waitcount=0; //count how many elements are in waitlist
+    int tempcount=needle; //the number of used temporary matrix
     while(expression[count] !='\0'){
-        if (expression[count]=='*')
-            multicount++;
         count++;
     }
-    
     //Clear threadcount
     threadcount = 0;
+
     ptr=1;
-    while(ptr<count){
-        Lmulti=0;  //0 dont lock multi
-        if (expression[ptr]=='*'){
-            Lmulti=1; //locked
-            if(firstL==1)
-                lockk=1;
-            // Wait for the threads to finish
-            for (int t = 0; t < threadcount; t++) {
-              rc = pthread_join(threads[t], NULL);
+    while(count>1){
+        lockfirst=0;
+        //printf("\n\n%s ,%dleft  ptr%d",expression,count,ptr);
+        if(ptr==1){
+            if (expression[ptr]=='*'){
+                lockfirst=1;   //do not allow second call in this loop(need to wait the result of excute)
+                //Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
+                  args[threadcount].matrix1 = &matrices[expression[ptr-1] -'A'];
+                  args[threadcount].matrix2 = &matrices[expression[ptr+1] -'A'];
+                  args[threadcount].result = &matrices[temparr[tempcount]-'A'];
+                  args[threadcount].resultID = temparr[tempcount];
+                  args[threadcount].operatorCh = '*';
+                  rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
+                  if (rc) {
+                    printf("Error creating thread %d\n", threadcount);
+                    return -1;
+                  }
+                ////thread num +1
+                  threadcount++; 
+
+                expression[ptr-1]=temparr[tempcount++];  //change the expression e.g.(A*B+C->K+C)
+                for(int i=ptr;i<count+1;i++){
+                    expression[i]=expression[i+2];
+                }
+                count-=2;
+                if(ptr>count)
+                    ptr=1;
+            }
+            
+            if((expression[ptr+2]!='*')&&(lockfirst==0)){
+                lockfirst=0;
+                //Pprogram_Konw(expression[ptr-1],expression[ptr+1],temparr[tempcount],expression[ptr]);
+                args[threadcount].matrix1 = &matrices[expression[ptr-1] -'A'];
+                args[threadcount].matrix2 = &matrices[expression[ptr+1] -'A'];
+                args[threadcount].result = &matrices[temparr[tempcount]-'A'];
+                args[threadcount].resultID = temparr[tempcount];
+                args[threadcount].operatorCh = expression[ptr];
+                rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
                 if (rc) {
-                  printf("Error joining thread %d\n", t);
+                  printf("Error creating thread %d\n", threadcount);
                   return -1;
                 }
-            } 
-            //Clear threadcount
-            threadcount = 0;             
-   
-            args[threadcount].matrix1 = &matrices[expression[ptr-1] -'A'];
-            args[threadcount].matrix2 = &matrices[expression[ptr+1] -'A'];
-            args[threadcount].result = &matrices[temparr[tempcount]-'A'];
-            args[threadcount].resultID = temparr[tempcount];
-            args[threadcount].subPthreadNum = 1;
-            args[threadcount].operatorCh = '*';
-            rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
-            if (rc) {
-            printf("Error creating thread %d\n", threadcount);
-            return -1;
+                ////thread num +1
+                threadcount++; 
+
+                expression[ptr-1]=temparr[tempcount++];
+                for(int i=ptr;i<count+1;i++){
+                    expression[i]=expression[i+2];
+                }
+                count-=2;
             }
-  //            //thread num +1
-            threadcount++; 
-  //            pthread_join(threads[0], NULL);     
-            
-            
-            //Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
-            expression[ptr-1]=temparr[tempcount++];
-            for(int i=ptr;i<count+1;i++){
-                expression[i]=expression[i+2];
-            }
-            count-=2;
-            //printf("\n%s",expression);
-            if(count==1){
-              break;
-            }
-        }
-        
-        if (ptr==1&&(lockk==0)){  //read head //
-            if (expression[ptr]!='*'){
+            else if(lockfirst==0) {  //put first element into waitlist
                 waitlist[waitcount++]='+';
                 waitloc[waitcount/2]=0;
                 waitlist[waitcount++]=expression[0];
+                //printf("head is add into waitlist %s",waitlist);
                 ptr+=2;
-                //printf("  waitlist %s",waitlist);
+            }
             
-                //if ((expression[ptr]!='*')&&(expression[ptr+2]!='*')){
-                if ((expression[ptr]!='*')){
-                    waitlist[waitcount++]=expression[1];
-                    waitloc[waitcount/2]=2;
-                    waitlist[waitcount++]=expression[2];
-                    //printf("  waitlist %s",waitlist);
-                }
-            }   
         }
-        
-        if ((expression[ptr]=='*')&&(Lmulti==0)){
-            if(firstL==1)
-                lockk=1;
-            // Wait for the threads to finish
-            for (int t = 0; t < threadcount; t++) {
-              rc = pthread_join(threads[t], NULL);
-                if (rc) {
-                  printf("Error joining thread %d\n", t);
-                  return -1;
-                }
-            } 
-  //              Clear threadcount
-              threadcount = 0;      
-                          
-               
-            args[threadcount].matrix1 = &matrices[expression[ptr-1] -'A'];
-            args[threadcount].matrix2 = &matrices[expression[ptr+1] -'A'];
-            args[threadcount].result = &matrices[temparr[tempcount]-'A'];
-            args[threadcount].resultID = temparr[tempcount];
-            args[threadcount].subPthreadNum = 1;
-            args[threadcount].operatorCh = '*';
-            rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
-            if (rc) {
+        //Not point to the first operator
+        //base on operator to do calculation
+        if ((lockfirst==0)&&(expression[ptr]=='*')){
+          //Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
+          args[threadcount].matrix1 = &matrices[expression[ptr-1] -'A'];
+          args[threadcount].matrix2 = &matrices[expression[ptr+1] -'A'];
+          args[threadcount].result = &matrices[temparr[tempcount]-'A'];
+          args[threadcount].resultID = temparr[tempcount];
+          args[threadcount].operatorCh = '*';
+          rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
+          if (rc) {
             printf("Error creating thread %d\n", threadcount);
             return -1;
-            }
-            
-  //            //thread num +1
- //           threadcount++; 
-            pthread_join(threads[0], NULL);
-                      
-                      
-            //Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
-            expression[ptr-1]=temparr[tempcount++];
-            for(int i=ptr;i<count+1;i++){
-                expression[i]=expression[i+2];
-            }
-            count-=2;
-            //printf("\n%s",expression);
-            if(count==1){            
-                break;
-            }
+          }
+          ////thread num +1
+          threadcount++; 
+
+          expression[ptr-1]=temparr[tempcount++];
+          for(int i=ptr;i<count+1;i++){
+              expression[i]=expression[i+2];
+          }
+          count-=2;
         }
-        
-        if (waitcount==4){ //++ or   -- == -(+)
-            if(waitlist[1]==waitlist[3]){
-                waitcount=0;
-                //printf("\nClear\n");
-                continue;
-            }
-            if(waitlist[0]==waitlist[2]){
-            ////ready to print in non_multiplication
-            if(count==3){
-              lastCalculation = 1;
-              args[threadcount].printOut = 1;
-              if (TESTMODE){
-                printf("\nREADY TO PRINT!\n");
-              }
-            }            
-            args[threadcount].matrix1 = &matrices[waitlist[1] -'A'];
-            args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
-            args[threadcount].result = &matrices[temparr[tempcount]-'A'];
-            args[threadcount].resultID = temparr[tempcount];
-            args[threadcount].subPthreadNum =1;
-            args[threadcount].operatorCh = '+';
-            rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
-            if (rc) {
-            printf("Error creating thread %d\n", threadcount);
-            return -1;
-            }
-            //thread num +1
-            threadcount++;            
-            
-                //Padd(waitlist[1],waitlist[3],temparr[tempcount]);
-                
-            }
-            else{         //+- or -+ == -(-)
-            ////ready to print in non_multiplication
-            if(count==3){
-              lastCalculation = 1;
-              args[threadcount].printOut = 1;
-              if (TESTMODE){
-                printf("\nREADY TO PRINT!\n");
-              }              
-            }            
-            args[threadcount].matrix1 = &matrices[waitlist[1] -'A'];
-            args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
-            args[threadcount].result = &matrices[temparr[tempcount]-'A'];
-            args[threadcount].resultID = temparr[tempcount];
-            args[threadcount].subPthreadNum =1;
-            args[threadcount].operatorCh = '-';
-            rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
-            if (rc) {
-            printf("Error creating thread %d\n", threadcount);
-            return -1;
-            }
-            //thread num +1
-            threadcount++;  
-            
-                //Psub(waitlist[1],waitlist[3],temparr[tempcount]);
-            }
-             //printf("  waitloc 0:%d, 1:%d",waitloc[0],waitloc[1]);
-            if(waitloc[0]<waitloc[1]){
-                AtHead=waitloc[0];
-                AtTail=waitloc[1];
-            }
-            else{
-                AtHead=waitloc[1];
-                AtTail=waitloc[0];
-            }
-            expression[AtHead]=temparr[tempcount++];
-            for(int i=AtTail-1;i<count+1;i++){
-                    expression[i]=expression[i+2];
-            }
-            
-            waitcount=0;
-            //printf("after waitlist:\n%s",expression);
-            count-=2;
-            ptr-=2;
-            if(count==1){
-                break;}
-        }
-        
-        if ((expression[ptr]=='+')||(expression[ptr]=='-')){
-            if (expression[ptr+2]!='*'){
+        //add next element into waitlist
+        if((expression[ptr]!='\0')&&(expression[ptr]!='*')){
+            if((expression[ptr+2]!='*')){
                 waitlist[waitcount++]=expression[ptr];
-                waitloc[waitcount/2]=(ptr+1);
+                waitloc[waitcount/2]=ptr+1;
                 waitlist[waitcount++]=expression[ptr+1];
-                //ptr+=2;
-                //printf(" ptr:%d waitlist %s loc0:%d  1:%d",ptr,waitlist,waitloc[0],waitloc[1]);
+                //printf("element %c is add into waitlist %s ",expression[ptr+1],waitlist);
             }
         }
+        //if waitlist is ready to excute(have 2 elements)
         if (waitcount==4){ //++ or   -- == -(+)
-            if(waitlist[1]==waitlist[3]){
-                waitcount=0;
-                printf("\nClear\n");
-                continue;
-            }
+            //printf("\nexcute waitlist\n");
             if(waitlist[0]==waitlist[2]){
-            ////ready to print in non_multiplication
-            if(count==3){
-              lastCalculation = 1;
-              args[threadcount].printOut = 1;
-              if (TESTMODE){
-                printf("\nREADY TO PRINT!\n");
-              }              
-            }
-            args[threadcount].matrix1 = &matrices[waitlist[1] -'A'];
-            args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
-            args[threadcount].result = &matrices[temparr[tempcount]-'A'];
-            args[threadcount].resultID = temparr[tempcount];
-            args[threadcount].subPthreadNum = 1;
-            args[threadcount].operatorCh = '+';
-            rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
-            if (rc) {
-            printf("Error creating thread %d\n", threadcount);
-            return -1;
-            }
-            //thread num +1
-            threadcount++;  
- 
                 //Padd(waitlist[1],waitlist[3],temparr[tempcount]);
+                operatorr='+';
             }
             else{         //+- or -+ == -(-)
-            ////ready to print in non_multiplication
-            if(count==3){
-              lastCalculation = 1;
-              args[threadcount].printOut = 1;
-              if (TESTMODE){
-                printf("\nREADY TO PRINT!\n");
-              }
-            }            
+                //Psub(waitlist[1],waitlist[3],temparr[tempcount]);
+                operatorr='-';
+            }
+            //Pprogram_Konw(waitlist[1],waitlist[3],temparr[tempcount],operatorr);
+
             args[threadcount].matrix1 = &matrices[waitlist[1] -'A'];
             args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
             args[threadcount].result = &matrices[temparr[tempcount]-'A'];
             args[threadcount].resultID = temparr[tempcount];
-            args[threadcount].subPthreadNum = 1;
-            args[threadcount].operatorCh = '-';
+            args[threadcount].operatorCh = operatorr;
             rc = pthread_create(&threads[threadcount], NULL, matrixCalculation, (void*)&args[threadcount]);
             if (rc) {
-            printf("Error creating thread %d\n", threadcount);
-            return -1;
+              printf("Error creating thread %d\n", threadcount);
+              return -1;
             }
-            //thread num +1
-            threadcount++;  
-             
-                //Psub(waitlist[1],waitlist[3],temparr[tempcount]);
-            }
-             //printf("  waitloc 0:%d, 1:%d",waitloc[0],waitloc[1]);
-            if(waitloc[0]<waitloc[1]){
-                AtHead=waitloc[0];
-                AtTail=waitloc[1];
-            }
-            else{
-                AtHead=waitloc[1];
-                AtTail=waitloc[0];
-            }
-            expression[AtHead]=temparr[tempcount++];
-            for(int i=AtTail-1;i<count+1;i++){
+            ////thread num +1
+            threadcount++; 
+
+            //printf("  waitloc 0:%d, 1:%d",waitloc[0],waitloc[1]); 
+            expression[waitloc[0]]=temparr[tempcount++];
+            for(int i=waitloc[1]-1;i<count+1;i++){
                     expression[i]=expression[i+2];
             }
-            
             waitcount=0;
             //printf("after waitlist:\n%s\n",expression);
             count-=2;
-            ptr-=2;
-            if(count==1){
-                break;}
+            if(count==1)
+                break;
+            continue;
         }
         
         ptr+=2;
-        if(count==1){
-            break;}
-        if(firstL==1){
-            firstL=0;
-            lockk=0;
-        }
-        if(ptr>=count){ //if(current ==NULL)
-            ptr=1;      //current= head->right;
-                        //joinPthread here 
-                        
-            // Wait for the threads to finish
-            for (int t = 0; t < threadcount; t++) {
-              rc = pthread_join(threads[t], NULL);
-                if (rc) {
-                  printf("Error joining thread %d\n", t);
-                  return -1;
-                }
-            }                        
-            //Clear threadcount
-            threadcount = 0;                         
-  
-            firstL=1;
+        if (ptr>count){
+            ptr=1;
             waitcount=0;
-            //printf("\n\nWaiting all pthread\n\n");
+            //printf("\n\nTo the end of expression, Waiting all pthread\n\n");
+            // Wait for the threads to finish
+          for (int t = 0; t < threadcount; t++) {
+          rc = pthread_join(threads[t], NULL);
+          if (rc) {
+            printf("Error joining thread %d\n", t);
+            return -1;
+          }
+          }
+          //Clear threadcount
+          threadcount = 0;  
         }
         
-        //printf("\n\n%s ,%d  !%d",expression,count,ptr);
-
     }
-    
+    //printf("\n\nBefor left, Wait all pthread\n\n");
+
     // Wait for the threads to finish
     for (int t = 0; t < threadcount; t++) {
       rc = pthread_join(threads[t], NULL);
@@ -858,7 +689,7 @@ int Operation_logic(char expression[50], Matrix* matrices){
       }
     //Clear threadcount
     threadcount = 0;  
-    return (expression[0] - 'A');
+    return (expression[0]-'A');
 }
 
 void printMatrix(Matrix* matrix) {
@@ -898,7 +729,7 @@ void printMatrix(Matrix* matrix) {
 
 int main() {
     char expression[50];
-    int n, m;
+    int needle=0;
     int numMatrices = 20;
     Matrix* matrices;
     struct timeval start, end;
@@ -921,12 +752,41 @@ int main() {
     }
    // Read and assign values to the matrices
     int matrixIndex = 0;
+    pthread_t threads1;
     for (int i = 0; expression[i] != '\0'; i++) {
         if (isalpha(expression[i])) {
             creatMatrix(matrices, matrixIndex);
             matrixIndex++;
+        
+        if(matrixIndex==2){
+          if (expression[1]=='*'){
+            MatrixArgs args1;
+            args1.matrix1 = &matrices[expression[0] -'A'];
+            args1.matrix2 = &matrices[expression[2] -'A'];
+            args1.result = &matrices[10];
+            args1.resultID = 'K';
+            args1.subPthreadNum = 1;
+            args1.operatorCh = '*';
+            int rc1 = pthread_create(&threads1, NULL, matrixCalculation, (void*)&args1);
+
+            //Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
+            //expression[ptr-1]=temparr[tempcount++];
+            expression[0]='K';
+            needle=1;
+          }
         }
+        }
+    //wait
+          
     }
+          if (needle == 1){
+            //printf("enter first *");
+            for(int j=1;j<21;j++){
+              expression[j]=expression[j+2];
+            }
+            pthread_join(threads1, NULL);
+    }
+    
     if(TESTMODE){
       gettimeofday(&end, NULL);
       cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
@@ -934,7 +794,7 @@ int main() {
     }
   //////////////////////////////CALL FUNCTION HERE/////////////////////////////////////////
   //int temp = expressionInterpretation(expression,matrices);
-    int temp = Operation_logic(expression,matrices);
+    int temp = Operation_logic(expression,matrices,needle);
   //printf("Output: %int\n  in char: %c",temp,temp+'A');
     if (temp == -1) {
     printf("Error");
