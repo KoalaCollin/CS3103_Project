@@ -29,7 +29,7 @@ void Pprogram_Konw(char a, char b, char c, char operatorr){
 //This function is use to determine call which matrix function 
 //and input the correct arguments for those function
 //finally it will output the index that store the answer
-char Operation_logic(char expression[50]){
+char Operation_logic(char expression[50],int needle){
     int count=0;
     int ptr=1;
     int lockfirst=0; //boolean for don't use first element twice
@@ -39,7 +39,7 @@ char Operation_logic(char expression[50]){
     char operatorr;
     int Lmulti=0;
     int waitcount=0;
-    int tempcount=0;
+    int tempcount=x;
     
     while(expression[count] !='\0'){
         count++;
@@ -140,15 +140,15 @@ int main()
     //char expression[50]={"A*B"}; //task2
     //char expression[50]={"A-B"}; //task3
     //char expression[50]={"A+B-C+D"}; //task4
-    //char expression[50]={"A*B*C*D"}; //task5
+    char expression[50]={"A*B*C*D"}; //task5
     //char expression[50]={"A+B*C+D"}; //task6
     //char expression[50]={"A+B+C*D*E"}; //task7
-    char expression[50]={"A+B+C*D*E+F-G-H*I*J"}; //task8
+    //char expression[50]={"A+B+C*D*E+F-G-H*I*J"}; //task8
     //char expression[50]={"A*B*C*D*E*F*G*H*I*J"}; //temp
     //char expression[50]={"A*B+C*D-E*F+G*H-I*J"}; //task9
     //char expression[50]={"A*B*C*D+E+F+G+H+I+J"}; //task10
-    
-    char finalll=Operation_logic(expression);
+    int needle=0;
+    char finalll=Operation_logic(expression,needle);
     //printf("\nThe output is %c",Operation_logic(expression));
     printf("\nThe output is %c",finalll);
 }
