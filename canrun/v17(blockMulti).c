@@ -92,9 +92,9 @@ int readMatrix(Matrix* matrix) {
 
 void freeMatrix(Matrix* matrix) {
     if (matrix->data != NULL) {
-//        for (int i = 0; i < matrix->rows; i++) {
-//            free(matrix->data[i]);
-//        }
+    //        for (int i = 0; i < matrix->rows; i++) {
+    //            free(matrix->data[i]);
+    //        }
         free(matrix->data);
     }
 }
@@ -118,8 +118,7 @@ void* pthreadNonMultiplication(void* arg) {
     int m2Row = matrix2->rows;
     int m2Col = matrix2->cols; 
     int printOut = args->printOut;     
-    
-    
+     
     if(TESTMODE){
     if(printOut == 1){
       printf("%d",result->rows);
@@ -130,9 +129,9 @@ void* pthreadNonMultiplication(void* arg) {
           for (int n = 0; n < resultCol; n++) {
               int value1 = (m < m1Row && n < m1Col) ? matrix1->data[m * m1Col + n] : 0;
               int value2 = (m < m2Row && n < m2Col) ? matrix2->data[m * m2Col + n] : 0;
-              //printf("%d", value1 + value2);
+              printf("%d  ", value1 + value2);
           }
-          //printf("\n"); 
+          printf("\n"); 
         }
       }else{
         // Perform matrix subtraction
@@ -140,9 +139,9 @@ void* pthreadNonMultiplication(void* arg) {
           for (int n = 0; n < resultCol; n++) {
             int value1 = (m < m1Row && n < m1Col) ? matrix1->data[m * m1Col + n] : 0;
             int value2 = (m < m2Row && n < m2Col) ? matrix2->data[m * m2Col + n] : 0;
-            //printf("%d", value1 - value2);
+            printf("%d  ", value1 - value2);
           } 
-        //printf("\n");
+        printf("\n");
         }
       }    
     }else{
@@ -247,22 +246,22 @@ void* pthreadBlockMultiplication(void* arg) {
     int m2Row = matrix2->rows;
     int m2Col = matrix2->cols;
 
-//int rows_block = (m1Row + block_size - 1) / block_size;
-//int cols_block = (m2Col + block_size - 1) / block_size;
+    //int rows_block = (m1Row + block_size - 1) / block_size;
+    //int cols_block = (m2Col + block_size - 1) / block_size;
 
-for (int i = startRow; i < endRow; i++) {
-    for (int j = 0; j < m2Col; j++) {
-        for (int k = 0; k < m1Col; k++) {
-            for (int ii = i * block_size; ii < (i + 1) * block_size && ii < m1Row; ii++) {
-                for (int jj = j * block_size; jj < (j + 1) * block_size && jj < m2Col; jj++) {
-                    for (int kk = k * block_size; kk < (k + 1) * block_size && kk < m1Col; kk++) {
+    for (int i = startRow; i < endRow; i++) {
+        for (int j = 0; j < m2Col; j++) {
+            for (int k = 0; k < m1Col; k++) {
+                for (int ii = i * block_size; ii < (i + 1) * block_size && ii < m1Row; ii++) {
+                    for (int jj = j * block_size; jj < (j + 1) * block_size && jj < m2Col; jj++) {
+                        for (int kk = k * block_size; kk < (k + 1) * block_size && kk < m1Col; kk++) {
                         result->data[ii * resultCol + jj] += matrix1->data[ii * m1Col + kk] * matrix2->data[kk * m2Col + jj];
+                        }
                     }
                 }
             }
         }
     }
-}
     
     if(TESTMODE){ 
     
@@ -293,8 +292,7 @@ void* pthreadMultiplication(void* arg) {
     int m2Row = matrix2->rows;
     int m2Col = matrix2->cols;
     //int temparray[(endRow - startRow)*resultCol];
-    
-//    
+       
     for (int m = startRow; m < endRow; m++) {
         for (int k = 0; k < matrix1->cols; k++){
             int value1 = (m < m1Row && k < m1Col) ? matrix1->data[m * m1Col + k] : 0;
@@ -435,15 +433,12 @@ void* matrixCalculation(void* arg) {
     for (int i = 0; i < subPthreadNum; i++) {
         pthread_join(threads[i], NULL);
     } 
-//    }else{
-//    ///////////2d//////////////////////////////////////////////////////////////
-//    subArgs[subPthreadCount].matrix1 = matrix1;
-//    subArgs[subPthreadCount].matrix2 = matrix2;
-//    subArgs[subPthreadCount].result = result;    
-//    
-//    
-//    
-//    }
+  //    }else{
+  //    ///////////2d//////////////////////////////////////////////////////////////
+  //    subArgs[subPthreadCount].matrix1 = matrix1;
+  //    subArgs[subPthreadCount].matrix2 = matrix2;
+  //    subArgs[subPthreadCount].result = result;     
+  //    }
     
     
     
@@ -497,8 +492,7 @@ void printLinkedList(Node* head) {
     printf("\n");
 }
 
-int Operation_logic(char expression[50], Matrix* matrices)
-{
+int Operation_logic(char expression[50], Matrix* matrices){
     //For pthread
     int threadcount;
     //int subPthreadSize;
@@ -558,9 +552,9 @@ int Operation_logic(char expression[50], Matrix* matrices)
             printf("Error creating thread %d\n", threadcount);
             return -1;
             }
-//            //thread num +1
+  //            //thread num +1
             threadcount++; 
-//            pthread_join(threads[0], NULL);     
+  //            pthread_join(threads[0], NULL);     
             
             
             //Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
@@ -604,7 +598,7 @@ int Operation_logic(char expression[50], Matrix* matrices)
                   return -1;
                 }
             } 
-//              Clear threadcount
+  //              Clear threadcount
               threadcount = 0;      
                           
                
@@ -620,7 +614,7 @@ int Operation_logic(char expression[50], Matrix* matrices)
             return -1;
             }
             
-//            //thread num +1
+  //            //thread num +1
  //           threadcount++; 
             pthread_join(threads[0], NULL);
                       
@@ -933,7 +927,7 @@ int main() {
       cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
       printf("Execution Time of Reading Maxtrix: %f seconds\n", cpu_time_used);
     }
-//////////////////////////////CALL FUNCTION HERE/////////////////////////////////////////
+  //////////////////////////////CALL FUNCTION HERE/////////////////////////////////////////
   //int temp = expressionInterpretation(expression,matrices);
     int temp = Operation_logic(expression,matrices);
   //printf("Output: %int\n  in char: %c",temp,temp+'A');
@@ -941,28 +935,28 @@ int main() {
     printf("Error");
     return 0;
     }
-//////////////////////////////OUTPUT//////////////////////////////////////////
+  //////////////////////////////OUTPUT//////////////////////////////////////////
     //Use this function only if the last one is not non multplication
     if(lastCalculation == 0){
     printMatrix(&matrices[temp]);
     }
 
 
-//    start = clock(); // Start the timer
+  //    start = clock(); // Start the timer
 
     //Free the allocated memory
-//    for (int i = 0; i < numMatrices; i++) {
-//        freeMatrix(&matrices[i]);
-//    }
-//    free(matrices);
+  //    for (int i = 0; i < numMatrices; i++) {
+  //        freeMatrix(&matrices[i]);
+  //    }
+  //    free(matrices);
 
     if(TESTMODE){
     gettimeofday(&end, NULL);
     cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
-//    end = clock(); // Stop the timer
-//    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  //    end = clock(); // Stop the timer
+  //    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("Total Execution Time: %f seconds\n", cpu_time_used);
-}
+  }
 
     return 0;
 }
