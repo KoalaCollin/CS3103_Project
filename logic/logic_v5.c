@@ -25,6 +25,10 @@ void Pprogram_Konw(char a, char b, char c, char operatorr){
     printf(" %c=(%c%c%c) ",c,a,operatorr,b);
 }
 
+
+//This function is use to determine call which matrix function 
+//and input the correct arguments for those function
+//finally it will output the index that store the answer
 char Operation_logic(char expression[50]){
     int count=0;
     int ptr=1;
@@ -32,7 +36,7 @@ char Operation_logic(char expression[50]){
     char temparr[50]={"KLMNOPQRST"};    //temparr
     char waitlist[50];
     int waitloc[10];
-    int AtHead,AtTail;
+    char operatorr;
     int Lmulti=0;
     int waitcount=0;
     int tempcount=0;
@@ -65,7 +69,7 @@ char Operation_logic(char expression[50]){
                     }
                     count-=2;
                 }
-                else{  //put first into waitlist
+                else{  //put first element into waitlist
                     waitlist[waitcount++]='+';
                     waitloc[waitcount/2]=0;
                     waitlist[waitcount++]=expression[0];
@@ -84,7 +88,7 @@ char Operation_logic(char expression[50]){
             count-=2;
         }
         if((lockfirst==0)&&(expression[ptr]!='\0')&&(expression[ptr]!='*')){
-            if((expression[ptr+2]!='*')){  //||(expression[ptr+2]=='-')
+            if((expression[ptr+2]!='*')){
                 waitlist[waitcount++]=expression[ptr];
                 waitloc[waitcount/2]=ptr+1;
                 waitlist[waitcount++]=expression[ptr+1];
@@ -93,31 +97,24 @@ char Operation_logic(char expression[50]){
         }
         
         if (waitcount==4){ //++ or   -- == -(+)
-            printf("excute waitlist\n");
+            printf("\nexcute waitlist\n");
             if(waitlist[0]==waitlist[2]){
-                Padd(waitlist[1],waitlist[3],temparr[tempcount]);
+                //Padd(waitlist[1],waitlist[3],temparr[tempcount]);
+                operatorr='+';
             }
             else{         //+- or -+ == -(-)
-                Psub(waitlist[1],waitlist[3],temparr[tempcount]);
+                //Psub(waitlist[1],waitlist[3],temparr[tempcount]);
+                operatorr='-';
             }
+            Pprogram_Konw(waitlist[1],waitlist[3],temparr[tempcount],operatorr);
             printf("  waitloc 0:%d, 1:%d",waitloc[0],waitloc[1]);
-            if(waitloc[0]<waitloc[1]){
-                AtHead=waitloc[0];
-                AtTail=waitloc[1];
-            }
-            else{
-                AtHead=waitloc[1];
-                AtTail=waitloc[0];
-            }
-            expression[AtHead]=temparr[tempcount++];
-            for(int i=AtTail-1;i<count+1;i++){
+            expression[waitloc[0]]=temparr[tempcount++];
+            for(int i=waitloc[0]-1;i<count+1;i++){
                     expression[i]=expression[i+2];
             }
-            
             waitcount=0;
             printf("after waitlist:\n%s\n",expression);
             count-=2;
-            printf("\n///// waiting  ////\n");
             if(count==1)
                 break;
         }
@@ -125,6 +122,7 @@ char Operation_logic(char expression[50]){
         ptr+=2;
         if (ptr>count){
             ptr=1;
+            waitcount=0;
             printf("\n\nTo the end of expression, Waiting all pthread\n\n");
         }
         
@@ -136,7 +134,7 @@ char Operation_logic(char expression[50]){
 
 int main()
 {
-    char expression[50]={"A*B+C+D*E-F+G"}; 
+    //char expression[50]={"A*B+C+D*E-F+G"}; 
     
     //char expression[50]={"A+B"}; //task1
     //char expression[50]={"A*B"}; //task2
@@ -145,7 +143,7 @@ int main()
     //char expression[50]={"A*B*C*D"}; //task5
     //char expression[50]={"A+B*C+D"}; //task6
     //char expression[50]={"A+B+C*D*E"}; //task7
-    //char expression[50]={"A+B+C*D*E+F-G-H*I*J"}; //task8
+    char expression[50]={"A+B+C*D*E+F-G-H*I*J"}; //task8
     //char expression[50]={"A*B*C*D*E*F*G*H*I*J"}; //temp
     //char expression[50]={"A*B+C*D-E*F+G*H-I*J"}; //task9
     //char expression[50]={"A*B*C*D+E+F+G+H+I+J"}; //task10
