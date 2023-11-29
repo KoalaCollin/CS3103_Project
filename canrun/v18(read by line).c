@@ -84,7 +84,7 @@ void creatMatrix(Matrix* matrices, int matrixIndex) {
       for (int j = 0; j < matrixIndex; j++) {
         freeMatrix(&matrices[j]);
       }
-      free(matrices);
+      //free(matrices);
       return -1;
     }
 }
@@ -97,36 +97,36 @@ int readMatrix(Matrix* matrix) {
         return -1;
     }
 
-    for (int i = 0; i < matrix->rows; i++) {
-        for (int j = 0; j < matrix->cols; j++) {
-            if (scanf("%d", &matrix->data[i * matrix->cols + j]) != 1) {
-                printf("Failed to read element at row %d, column %d.\n", i + 1, j + 1);
-                return -1;
-            }
-        }
-        while ((c = getchar()) != '\n' && c != EOF) {
-            // Skip the remaining characters on the current line
-        }
-    }
-
-    // char line[sizeof(int) * 1000];
-
     // for (int i = 0; i < matrix->rows; i++) {
-    //     if (fgets(line, sizeof(line), stdin) == NULL) {
-    //         printf("Failed to read line %d from the file.\n", i + 1);
-    //         return -1;
-    //     }
-
-    //     char *token = strtok(line, "  ");
     //     for (int j = 0; j < matrix->cols; j++) {
-    //         if (token == NULL) {
+    //         if (scanf("%d", &matrix->data[i * matrix->cols + j]) != 1) {
     //             printf("Failed to read element at row %d, column %d.\n", i + 1, j + 1);
     //             return -1;
     //         }
-    //         matrix->data[i * matrix->cols + j] = atoi(token);
-    //         token = strtok(NULL, " ");
+    //     }
+    //     while ((c = getchar()) != '\n' && c != EOF) {
+    //         // Skip the remaining characters on the current line
     //     }
     // }
+
+    char line[sizeof(int) * matrix->cols];
+
+    for (int i = 0; i < matrix->rows; i++) {
+      if (fgets(line, sizeof(line), stdin) == NULL) {
+          printf("Failed to read line %d from the input.\n", i + 1);
+          return -1;
+      } 
+      char *token = strtok(line, "	");
+      for (int j = 0; j < matrix->cols; j++) {
+      if (token == NULL) {
+          printf("Failed to read element at row %d, column %d.\n", i + 1, j + 1);
+          return -1;
+      }
+
+      matrix->data[i * matrix->cols + j] = atoi(token);
+      token = strtok(NULL, "	");
+    }
+  }
 
     return 0;
 }
@@ -170,9 +170,9 @@ void* pthreadNonMultiplication(void* arg) {
           for (int n = 0; n < resultCol; n++) {
               int value1 = (m < m1Row && n < m1Col) ? matrix1->data[m * m1Col + n] : 0;
               int value2 = (m < m2Row && n < m2Col) ? matrix2->data[m * m2Col + n] : 0;
-              printf("%d  ", value1 + value2);
+              //printf("%d  ", value1 + value2);
           }
-          printf("\n"); 
+          //printf("\n"); 
         }
       }else{
         // Perform matrix subtraction
@@ -180,9 +180,9 @@ void* pthreadNonMultiplication(void* arg) {
           for (int n = 0; n < resultCol; n++) {
             int value1 = (m < m1Row && n < m1Col) ? matrix1->data[m * m1Col + n] : 0;
             int value2 = (m < m2Row && n < m2Col) ? matrix2->data[m * m2Col + n] : 0;
-            printf("%d  ", value1 - value2);
+            //printf("%d  ", value1 - value2);
           } 
-        printf("\n");
+        //printf("\n");
         }
       }    
     }else{
@@ -871,7 +871,7 @@ void printMatrix(Matrix* matrix) {
     printf("  %d\n", matrix->cols);
     for (int j = 0; j < matrix->rows; j++) {
       for (int k = 0; k < matrix->cols; k++) {
-          printf("%d", matrix->data[j * matrix->cols + k]);
+          //printf("%d", matrix->data[j * matrix->cols + k]);
       }
     }
     printf("\n");
