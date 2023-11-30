@@ -21,6 +21,7 @@ typedef struct {
     int rows;
     int cols;
     int* data;
+    int standby;
 } Matrix;
 
 // Define a Node structure for the linked list
@@ -64,7 +65,7 @@ pthread_cond_t runningcond = PTHREAD_COND_INITIALIZER;
 #define Multiple_SUB 5
 #define NonMultiple_SUB 3
 #define TESTMODE 0
-#define block_size 20
+#define block_size 25
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////FUNCTIONS///////////////////////////////////////
@@ -87,6 +88,8 @@ void creatMatrix(Matrix* matrices, int matrixIndex) {
       //free(matrices);
       return -1;
     }
+    matrices[matrixIndex].standby = 1;
+    pthread_cond_signal(&runningcond);
 }
 
 int readMatrix(Matrix* matrix) {
@@ -335,6 +338,13 @@ void* matrixCalculation(void* arg) {
     int resultCols;
     int printOut = args->printOut;
 
+    //wait if matrices is not stand by
+    pthread_mutex_lock(&runninglock);
+    while ((matrix1->standby != 1)||(matrix2->standby !=1)) {
+        pthread_cond_wait(&runningcond, &runninglock);
+    }
+    pthread_mutex_unlock(&runninglock);
+
     struct timeval start, end;
     double cpu_time_used;
     if(TESTMODE){
@@ -477,7 +487,8 @@ void* matrixCalculation(void* arg) {
     //release memory
     //free(matrix1->data);
     //free(matrix2->data);
-    
+    result->standby = 1;
+    pthread_cond_signal(&runningcond);
     pthread_exit(NULL);
     
 }
@@ -676,6 +687,12 @@ int Operation_logic(char expression[50], Matrix* matrices,int needle){
 }
 
 void printMatrix(Matrix* matrix) {
+    //wait if matrices is not stand by
+    pthread_mutex_lock(&runninglock);
+    while (matrix->standby !=1) {
+        pthread_cond_wait(&runningcond, &runninglock);
+    }
+    pthread_mutex_unlock(&runninglock);
     if(TESTMODE){
     struct timeval start, end;
     double cpu_time_used;
@@ -740,6 +757,7 @@ int main() {
         if (isalpha(expression[i])) {
             creatMatrix(matrices, matrixIndex);
             matrixIndex++;
+        //parallel do the multplication if possible
         if((skip <= 0)&&(matrixIndex>2)&&(expression[(matrixIndex-1)*2-1]=='*')){
           if (expression[(matrixIndex-1)*2-1]=='*'){
             MatrixArgs args1;
@@ -781,9 +799,6 @@ int main() {
                 }
                 j--;
               }
-            }
-            for(int p_i = 0; p_i < needle; p_i++){
-              pthread_join(threads[p_i], NULL);
             }
     }
     
