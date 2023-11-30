@@ -344,7 +344,9 @@ void* matrixCalculation(void* arg) {
         pthread_cond_wait(&runningcond, &runninglock);
     }
     pthread_mutex_unlock(&runninglock);
-
+    if(TESTMODE){
+      printf("matrix %c %c Done, start calculation.",matrix1->name,matrix2->name);
+    }
     struct timeval start, end;
     double cpu_time_used;
     if(TESTMODE){
@@ -515,11 +517,12 @@ int Operation_logic(char expression[50], Matrix* matrices,int needle){
     }
     //Clear threadcount
     threadcount = 0;
-
     ptr=1;
     while(count>1){
         lockfirst=0;
-        //printf("\n\n%s ,%dleft  ptr%d",expression,count,ptr);
+        if(TESTMODE){
+        printf("\n\n%s ,%dleft  ptr%d",expression,count,ptr);
+        }
         if(ptr==1){
             if (expression[ptr]=='*'){
                 lockfirst=1;   //do not allow second call in this loop(need to wait the result of excute)
@@ -758,7 +761,10 @@ int main() {
             creatMatrix(matrices, matrixIndex);
             matrixIndex++;
         //parallel do the multplication if possible
-        if((skip <= 0)&&(matrixIndex>2)&&(expression[(matrixIndex-1)*2-1]=='*')){
+        if((skip <= 0)&&(matrixIndex >= 2)&&(expression[(matrixIndex-1)*2-1]=='*')&&(expression[(matrixIndex-1)*2+1]!='/0')){
+          if(TESTMODE){
+            printf("%c * %c",expression[(matrixIndex-1)*2-2],expression[(matrixIndex-1)*2]);
+          }
           if (expression[(matrixIndex-1)*2-1]=='*'){
             MatrixArgs args1;
             args1.matrix1 = &matrices[expression[(matrixIndex-1)*2-2] -'A'];
@@ -767,14 +773,14 @@ int main() {
             args1.resultID = 'K' + needle;
             args1.subPthreadNum = 1;
             args1.operatorCh = '*';
-            int rc1 = pthread_create(&threads[needle], NULL, matrixCalculation, (void*)&args1);
+            pthread_create(&threads[needle], NULL, matrixCalculation, (void*)&args1);
             //Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
             //expression[ptr-1]=temparr[tempcount++];
             expression[(matrixIndex-1)*2-2]='K' + needle;
             expression[(matrixIndex-1)*2-1]='0';
             expression[(matrixIndex-1)*2]='0';
             needle++;
-            skip = 2;
+            skip = 100;
           }
         }
         skip --;
@@ -783,7 +789,6 @@ int main() {
     //wait
           
     }
-
     //end readthread  
     pthread_mutex_lock(&runninglock);
     runningThreads -=2;
@@ -801,7 +806,6 @@ int main() {
               }
             }
     }
-    
     if(TESTMODE){
       gettimeofday(&end, NULL);
       cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
