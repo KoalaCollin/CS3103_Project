@@ -273,7 +273,6 @@ void* pthreadNonMultiplication(void* arg) {
     pthread_exit(NULL);
 }
 
-
 void* pthreadBlockMultiplication(void* arg) {
     struct timeval start, end;
     double cpu_time_used;
@@ -408,6 +407,9 @@ void* matrixCalculation(void* arg) {
             pthread_cond_wait(&runningcond, &runninglock);
           }
           runningThreads ++;
+          if(TESTMODE){
+          printf("thread:%d\n",runningThreads);
+          }
           pthread_mutex_unlock(&runninglock);
 
           if(operatorCh == '*'){
@@ -440,7 +442,7 @@ void* matrixCalculation(void* arg) {
     }
     runningThreads ++;
     pthread_mutex_unlock(&runninglock);
-    
+
     if(operatorCh == '*'){
       rc = pthread_create(&threads[subPthreadCount], NULL, pthreadBlockMultiplication, (void*)&subArgs[subPthreadCount]);
     }else{
@@ -463,13 +465,7 @@ void* matrixCalculation(void* arg) {
   //    subArgs[subPthreadCount].matrix2 = matrix2;
   //    subArgs[subPthreadCount].result = result;     
   //    }
-    
-  
-    
-    
-    
-    
-    
+
     if(TESTMODE){
       gettimeofday(&end, NULL);
 
@@ -543,7 +539,7 @@ int Operation_logic(char expression[50], Matrix* matrices,int needle){
                 lockfirst=0;
                 //Pprogram_Konw(expression[ptr-1],expression[ptr+1],temparr[tempcount],expression[ptr]);
                 if(count == 3){
-                  //args[threadcount].printOut = 1;
+                  args[threadcount].printOut = 1;
                 }
                 args[threadcount].matrix1 = &matrices[expression[ptr-1] -'A'];
                 args[threadcount].matrix2 = &matrices[expression[ptr+1] -'A'];
@@ -618,7 +614,7 @@ int Operation_logic(char expression[50], Matrix* matrices,int needle){
             }
             //Pprogram_Konw(waitlist[1],waitlist[3],temparr[tempcount],operatorr);
             if(count == 3){
-              //args[threadcount].printOut = 1;
+              args[threadcount].printOut = 1;
             }
             args[threadcount].matrix1 = &matrices[waitlist[1] -'A'];
             args[threadcount].matrix2 = &matrices[waitlist[3] -'A'];
@@ -737,39 +733,58 @@ int main() {
     }
    // Read and assign values to the matrices
     int matrixIndex = 0;
-    pthread_t threads1;
+    pthread_t threads[5];
+    int skip = 0;
+    runningThreads += 2;
     for (int i = 0; expression[i] != '\0'; i++) {
         if (isalpha(expression[i])) {
             creatMatrix(matrices, matrixIndex);
             matrixIndex++;
-        
-        if(matrixIndex==2){
-          if (expression[1]=='*'){
+        if((skip <= 0)&&(matrixIndex>2)&&(expression[(matrixIndex-1)*2-1]=='*')){
+          if (expression[(matrixIndex-1)*2-1]=='*'){
             MatrixArgs args1;
-            args1.matrix1 = &matrices[expression[0] -'A'];
-            args1.matrix2 = &matrices[expression[2] -'A'];
-            args1.result = &matrices[10];
-            args1.resultID = 'K';
+            args1.matrix1 = &matrices[expression[(matrixIndex-1)*2-2] -'A'];
+            args1.matrix2 = &matrices[expression[(matrixIndex-1)*2] -'A'];
+            args1.result = &matrices[10 + needle];
+            args1.resultID = 'K' + needle;
             args1.subPthreadNum = 1;
             args1.operatorCh = '*';
-            int rc1 = pthread_create(&threads1, NULL, matrixCalculation, (void*)&args1);
-
+            int rc1 = pthread_create(&threads[needle], NULL, matrixCalculation, (void*)&args1);
             //Pmulti(expression[ptr-1],expression[ptr+1],temparr[tempcount]);
             //expression[ptr-1]=temparr[tempcount++];
-            expression[0]='K';
-            needle=1;
+            expression[(matrixIndex-1)*2-2]='K' + needle;
+            expression[(matrixIndex-1)*2-1]='0';
+            expression[(matrixIndex-1)*2]='0';
+            needle++;
+            skip = 2;
           }
         }
+        skip --;
+
         }
     //wait
           
     }
-          if (needle == 1){
+
+    //end readthread  
+    pthread_mutex_lock(&runninglock);
+    runningThreads -=2;
+    pthread_cond_signal(&runningcond);
+    pthread_mutex_unlock(&runninglock);
+
+          if (needle != 0){
             //printf("enter first *");
             for(int j=1;j<21;j++){
-              expression[j]=expression[j+2];
+              if(expression[j]=='0'){
+                for(int k = j; k <21;k++){
+                  expression[k]=expression[k+1];
+                }
+                j--;
+              }
             }
-            pthread_join(threads1, NULL);
+            for(int p_i = 0; p_i < needle; p_i++){
+              pthread_join(threads[p_i], NULL);
+            }
     }
     
     if(TESTMODE){
