@@ -264,8 +264,12 @@ void* pthreadNonMultiplication(void* arg) {
     gettimeofday(&end, NULL);
     cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
     printf("Execution Time: %d Thread  %c = %c %c %c  %f seconds\n",startRow,result->name,matrix1->name,operatorCh,matrix2->name,cpu_time_used);
-    }    
-    
+    }  
+    //end subthread  
+    pthread_mutex_lock(&runninglock);
+    runningThreads--;
+    pthread_cond_signal(&runningcond);
+    pthread_mutex_unlock(&runninglock);
     pthread_exit(NULL);
 }
 
@@ -312,7 +316,11 @@ void* pthreadBlockMultiplication(void* arg) {
     cpu_time_used = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
     printf("Execution Time: %d Thread  %c = %c %c %c  %f seconds\n",startRow,result->name,matrix1->name,'*',matrix2->name,cpu_time_used);
     }
-    pthread_exit(NULL);
+    //end subthread  
+    pthread_mutex_lock(&runninglock);
+    runningThreads--;
+    pthread_cond_signal(&runningcond);
+    pthread_mutex_unlock(&runninglock);
 }
 
 void* matrixCalculation(void* arg) {
@@ -387,13 +395,21 @@ void* matrixCalculation(void* arg) {
     if ((rowPerPthread > 0)&&(subPthreadNum > 1)){
     // Create and execute three threads
       for (int i = 1; i < subPthreadNum; i++) {
+
           subArgs[subPthreadCount].matrix1 = matrix1;
           subArgs[subPthreadCount].matrix2 = matrix2;
           subArgs[subPthreadCount].result = result;
           subArgs[subPthreadCount].i = subPthreadCount * rowPerPthread;
           subArgs[subPthreadCount].j = subPthreadCount * rowPerPthread + rowPerPthread;
           subArgs[subPthreadCount].operatorCh = operatorCh;
-          
+          //wait for create
+          pthread_mutex_lock(&runninglock);
+          while (runningThreads >= MAX_THREADS) {
+            pthread_cond_wait(&runningcond, &runninglock);
+          }
+          runningThreads ++;
+          pthread_mutex_unlock(&runninglock);
+
           if(operatorCh == '*'){
             rc = pthread_create(&threads[subPthreadCount], NULL, pthreadBlockMultiplication, (void*)&subArgs[subPthreadCount]);
           }else{
@@ -416,6 +432,15 @@ void* matrixCalculation(void* arg) {
     subArgs[subPthreadCount].i = subPthreadCount * rowPerPthread;
     subArgs[subPthreadCount].j = resultRows;
     subArgs[subPthreadCount].operatorCh = operatorCh;
+
+    //wait for create
+    pthread_mutex_lock(&runninglock);
+    while (runningThreads >= MAX_THREADS) {
+      pthread_cond_wait(&runningcond, &runninglock);
+    }
+    runningThreads ++;
+    pthread_mutex_unlock(&runninglock);
+    
     if(operatorCh == '*'){
       rc = pthread_create(&threads[subPthreadCount], NULL, pthreadBlockMultiplication, (void*)&subArgs[subPthreadCount]);
     }else{
