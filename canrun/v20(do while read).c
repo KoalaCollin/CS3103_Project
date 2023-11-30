@@ -755,7 +755,7 @@ int main() {
     int matrixIndex = 0;
     pthread_t threads[5];
     int skip = 0;
-    runningThreads += 2;
+    runningThreads += 1;
     for (int i = 0; expression[i] != '\0'; i++) {
         if (isalpha(expression[i])) {
             creatMatrix(matrices, matrixIndex);
@@ -780,7 +780,7 @@ int main() {
             expression[(matrixIndex-1)*2-1]='0';
             expression[(matrixIndex-1)*2]='0';
             needle++;
-            skip = 100;
+            skip = 2;
           }
         }
         skip --;
@@ -791,7 +791,7 @@ int main() {
     }
     //end readthread  
     pthread_mutex_lock(&runninglock);
-    runningThreads -=2;
+    runningThreads -=1;
     pthread_cond_signal(&runningcond);
     pthread_mutex_unlock(&runninglock);
 
